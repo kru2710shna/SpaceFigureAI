@@ -1,0 +1,13 @@
+boto3
+botocore
+pydantic
+fastapi
+uvicorn
+openai
+numpy
+pillow
+opencv-python
+matplotlib
+requests
+python-dotenv
+pandas

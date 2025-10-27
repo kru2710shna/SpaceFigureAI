@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+.ipynb_checkpoints/
+
+# Logs & outputs
+logs/
+outputs/
+data/samples/
+*.log
+
+# OS
+.DS_Store
+
+# Credentials
+*.pem
+.env.local
