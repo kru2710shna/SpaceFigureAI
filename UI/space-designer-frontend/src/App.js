@@ -1,21 +1,28 @@
 import React from "react";
 import UploadForm from "./components/UploadForm";
 import "./App.css";
-import bgImage from "./assets/BG_AIML.jpg";
+import bgVideo from "./assets/BG_Arch_2.mp4";
 
 function App() {
   return (
-    <div
-      className="app-container"
-      style={{
-        backgroundImage: `url(${bgImage})`,
-      }}
-    >
+    <div className="app-container">
+      <video
+        className="background-video"
+        src={bgVideo}
+        autoPlay
+        loop
+        muted
+        playsInline
+      />
+
+      {/* ✨ Overlay */}
       <div className="overlay"></div>
+
+      {/* 🌟 Foreground Content */}
       <div className="content">
-        <h1 className="title"> Living Spaces Designer</h1>
+        <h1 className="title">Living Spaces Designer</h1>
         <p className="subtitle">
-          Please upload pictures of your room or blueprint below.
+          See your space by imagining it
         </p>
         <UploadForm />
       </div>

@@ -1,0 +1,91 @@
+.notification {
+  position: fixed;
+  top: 25px;
+  right: 25px;
+  width: 300px;
+  background: rgba(30, 30, 45, 0.9);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  padding: 16px 18px;
+  z-index: 9999;
+  animation: slideIn 0.5s ease-out forwards;
+  backdrop-filter: blur(15px);
+  overflow: hidden;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(120px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.notif-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.notif-header h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #e6e6ff;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #ccc;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: color 0.25s ease;
+}
+.close-btn:hover {
+  color: #fff;
+}
+
+.preview-label {
+  margin: 6px 0 8px 0;
+  font-size: 0.8rem;
+  color: #c6c6ff;
+}
+
+.notif-body {
+  text-align: center;
+}
+
+.notif-img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.notif-actions {
+  margin-top: 12px;
+  text-align: right;
+}
+
+.retry-btn {
+  padding: 6px 12px;
+  background: linear-gradient(90deg, #7b68ee, #a088ff);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.retry-btn:hover {
+  background: linear-gradient(90deg, #6959cd, #957eff);
+}

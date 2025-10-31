@@ -1,15 +1,17 @@
-/* --- Upload Form Modernized --- */
+/* --- Upload Form Modern Glass UI --- */
 .upload-box {
   background: rgba(255, 255, 255, 0.12);
   padding: 2rem;
-  border-radius: 18px;
-  box-shadow: 0 4px 25px rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
   text-align: center;
-  backdrop-filter: blur(20px);
-  width: 420px;
+  backdrop-filter: blur(18px);
+  width: 440px;
   transition: all 0.4s ease;
   position: relative;
   z-index: 3;
+  border: 1px solid rgba(255, 255, 255, 0.3); /* 🌟 slim outer border */
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.1);
+  animation: fadeIn 1.5s ease-in-out;
 }
 
 .upload-box:hover {
@@ -20,29 +22,37 @@
 /* --- Drag & Drop Zone --- */
 .drop-zone {
   border: 2px dashed rgba(255, 255, 255, 0.4);
-  border-radius: 14px;
-  padding: 2em 1em;
+  border-radius: 16px;
+  padding: 2.5em 1.5em;
   transition: all 0.3s ease;
   cursor: pointer;
   color: #f1f1f1;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
 }
 
 .drop-zone.active {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: #8f7efc;
+  background: rgba(140, 110, 255, 0.15);
+  border-color: #b79aff;
   transform: scale(1.03);
-  color: #ffffff;
+  box-shadow: 0 0 25px rgba(150, 130, 255, 0.35);
 }
 
 .upload-icon {
   font-size: 3.2rem;
-  color: #8f7efc;
+  color: #b79aff;
   margin-bottom: 0.5em;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, color 0.3s ease;
 }
 
 .drop-zone:hover .upload-icon {
   transform: scale(1.1);
+  color: #d0bfff;
+}
+
+.drop-zone p {
+  font-size: 1rem;
+  color: #eaeaea;
 }
 
 /* --- Preview Grid --- */
@@ -50,50 +60,99 @@
   margin-top: 20px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-  gap: 10px;
+  gap: 12px;
 }
 
 .preview-card {
   position: relative;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
   overflow: hidden;
   text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.preview-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(150, 120, 255, 0.3);
 }
 
 .preview-img {
   width: 100%;
-  height: 80px;
+  height: 85px;
   object-fit: cover;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .file-name {
   font-size: 0.7rem;
-  margin-top: 4px;
-  color: #e5e5e5;
+  margin-top: 5px;
+  color: #e8e8e8;
   word-break: break-all;
 }
 
 /* --- Upload Button --- */
 button {
   margin-top: 25px;
-  padding: 12px 25px;
-  background: linear-gradient(90deg, #7b68ee, #9b7bff);
+  padding: 14px 25px;
+  background: linear-gradient(90deg, #7b68ee, #a088ff);
   color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
   font-size: 1rem;
   transition: all 0.3s ease;
   width: 100%;
 }
 
 button:hover {
-  background: linear-gradient(90deg, #6a5acd, #836fff);
+  background: linear-gradient(90deg, #6959cd, #957eff);
   transform: translateY(-2px);
+  box-shadow: 0 0 25px rgba(140, 110, 255, 0.4);
+}
+
+/* --- Uploaded Gallery Section --- */
+.uploaded-gallery {
+  margin-top: 35px;
+  text-align: center;
+  color: #fff;
+  animation: fadeIn 1.5s ease-in-out;
+}
+
+.uploaded-gallery h3 {
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+  font-weight: 600;
+  color: #d8d8ff;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 15px;
+  padding: 0 10px;
+}
+
+.gallery-card {
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.gallery-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(140, 110, 255, 0.4);
+}
+
+.gallery-img {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 10px;
 }
 
 /* --- Status Message --- */
@@ -101,5 +160,19 @@ button:hover {
   margin-top: 20px;
   color: #ffffff;
   font-weight: 500;
+  font-size: 0.95rem;
   letter-spacing: 0.4px;
+  animation: fadeIn 1.2s ease-in-out;
+}
+
+/* --- Animation --- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
