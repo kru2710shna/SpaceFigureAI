@@ -5,6 +5,11 @@ import multer from "multer";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import llavaRoutes from "./routes/llavaRoutes.js";
+
+
+
+
 
 const app = express();
 const PORT = 5050;
@@ -71,6 +76,8 @@ app.post("/upload", upload.array("files"), (req, res) => {
 
 // --- Serve Static Uploads ---
 app.use("/uploads", express.static(uploadDir));
+app.use("/llava", llavaRoutes);
+
 
 // --- Default Route for Quick Test ---
 app.get("/", (req, res) => {
