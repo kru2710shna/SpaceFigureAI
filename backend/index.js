@@ -61,7 +61,12 @@ app.post("/upload", upload.array("files"), (req, res) => {
       filename: f.filename,
       path: `/uploads/${f.filename}`,
     })),
+    analysis: {
+      caption: "Bright modern living room with natural light.",
+      question: "Would you like to redesign this space or analyze lighting?",
+    },
   });
+
 });
 
 // --- Serve Static Uploads ---

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import Notification from "./Notification";
+import IntakeModal from "./IntakeModal";
 import "../styles/upload.css";
 
 function UploadForm() {
@@ -8,54 +9,47 @@ function UploadForm() {
   const [uploading, setUploading] = useState(false);
   const [uploadedImg, setUploadedImg] = useState(null);
   const [showNotif, setShowNotif] = useState(false);
+  const [showIntake, setShowIntake] = useState(false);
   const [message, setMessage] = useState("");
+  const [analysis, setAnalysis] = useState(null);
 
-  // Handle file selection
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
     setFiles(selectedFiles);
     console.log("Files selected:", selectedFiles.map((f) => f.name));
   };
 
-  // Handle upload
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!files.length) {
-      console.warn("No files selected for upload.");
-      return alert("Please select at least one image.");
-    }
+    if (!files.length) return alert("Please select an image.");
 
     const formData = new FormData();
     files.forEach((file) => formData.append("files", file));
 
     try {
-      console.log("Starting upload...");
+      console.log("Uploading...");
       setUploading(true);
 
       const response = await axios.post("http://127.0.0.1:5050/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      console.log("Upload response:", response.data);
+      console.log("Response:", response.data);
 
       if (response.data.uploaded?.length > 0) {
         const uploadedPath = response.data.uploaded[0].path;
         setUploadedImg(`http://localhost:5050${uploadedPath}`);
         setMessage("Image uploaded successfully.");
         setShowNotif(true);
-        
-      } else {
-        console.warn("Upload succeeded but no file info returned.");
-        setMessage("Upload succeeded, but file data missing.");
-        setShowNotif(true);
+        setShowIntake(true); // open intake modal after upload
+
+        if (response.data.analysis) {
+          setAnalysis(response.data.analysis);
+          console.log("Model says:", response.data.analysis.caption);
+        }
       }
-    } catch (error) {
-      console.error("Error during upload:", error);
-      if (error.response) {
-        console.error("Response Data:", error.response.data);
-        console.error("Status:", error.response.status);
-      }
+    } catch (err) {
+      console.error(err);
       setMessage("Upload failed. Please try again.");
       setShowNotif(true);
     } finally {
@@ -63,9 +57,7 @@ function UploadForm() {
     }
   };
 
-  // Retry upload
   const handleRetry = () => {
-    console.log("Retrying upload...");
     setShowNotif(false);
     setFiles([]);
     document.getElementById("fileInput").click();
@@ -106,6 +98,14 @@ function UploadForm() {
           message={message}
           onRetry={handleRetry}
           onClose={() => setShowNotif(false)}
+        />
+      )}
+
+      {showIntake && (
+        <IntakeModal
+          onClose={() => setShowIntake(false)}
+          imageSrc={uploadedImg}
+          analysis={analysis}
         />
       )}
     </>
