@@ -1,78 +1,53 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../styles/IntakeModal.css";
 
 function IntakeModal({ onClose, imageSrc }) {
-  const [form, setForm] = useState({
-    room_type: "",
-    budget_usd: "",
-    style: "",
-    lighting: "",
-    color_palette: "",
-  });
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState("Checking…");
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  // check backend /llava/status once on open
+  useEffect(() => {
+    axios.get("http://127.0.0.1:5050/llava/status")
+      .then((res) => setStatus(res.data.llava))
+      .catch(() => setStatus("⚠️ Offline"));
+  }, []);
 
-  const handleSubmit = async () => {
-    const structuredData = {
-      ...form,
-      color_palette: form.color_palette
-        ? form.color_palette.split(",").map((c) => c.trim())
-        : [],
+  // initial reasoning
+  useEffect(() => {
+    const run = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.post("http://127.0.0.1:5050/llava/analyze", { image_url: imageSrc });
+        setMessages([
+          { sender: "assistant", text: res.data.caption || "Analyzing your design…" },
+          { sender: "assistant", text: res.data.reasoning || res.data.suggestion || "Let's talk style ideas!" },
+        ]);
+      } catch {
+        setMessages([{ sender: "assistant", text: "⚠️ Failed to analyze image." }]);
+      } finally {
+        setLoading(false);
+      }
     };
+    run();
+  }, [imageSrc]);
 
-    setSubmitted(true);
-    setLoading(true);
-
-    try {
-      const response = await axios.post("http://127.0.0.1:5050/llava/analyze", {
-        image_url: imageSrc,
-        intake: structuredData,
-      });
-
-      const firstMessage = {
-        sender: "assistant",
-        text:
-          response.data.reasoning ||
-          "I see a modern, well-lit space. Would you like me to suggest decor or layout changes?",
-      };
-
-      setMessages([firstMessage]);
-    } catch (err) {
-      console.error(err);
-      setMessages([{ sender: "assistant", text: "⚠️ Failed to analyze image." }]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleChat = async () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
     const userMsg = { sender: "user", text: input };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setLoading(true);
-
     try {
-      const response = await axios.post("http://127.0.0.1:5050/llava/chat", {
+      const res = await axios.post("http://127.0.0.1:5050/llava/chat", {
         image_url: imageSrc,
-        message: input,
+        message: userMsg.text,
       });
-
-      const botMsg = { sender: "assistant", text: response.data.reply };
-      setMessages((prev) => [...prev, botMsg]);
-    } catch (err) {
-      console.error(err);
-      setMessages((prev) => [
-        ...prev,
-        { sender: "assistant", text: "Error: Unable to generate response." },
-      ]);
+      setMessages((prev) => [...prev, { sender: "assistant", text: res.data.reply }]);
+    } catch {
+      setMessages((prev) => [...prev, { sender: "assistant", text: "Error: Unable to generate response." }]);
     } finally {
       setLoading(false);
     }
@@ -80,55 +55,37 @@ function IntakeModal({ onClose, imageSrc }) {
 
   return (
     <div className="modal-overlay">
-      <div className="modal-container">
-        <div className="modal-header">
-          <h3>🧠 Design Reasoning Agent</h3>
+      <div className="modal-container pretty-scroll">
+        <header className="modal-header">
+          <div className="title-row">
+            <h3>🧠 Design Reasoning Agent</h3>
+            <span className="status-chip">{status}</span>
+          </div>
           <button className="close-btn" onClick={onClose}>×</button>
+        </header>
+
+        <div className="image-frame">
+          <img src={imageSrc} alt="uploaded" />
         </div>
 
-        {imageSrc && <img src={imageSrc} alt="Uploaded" className="modal-image" />}
-
-        {!submitted && (
-          <>
-            <p className="modal-subtitle">
-              Let's capture your design intent first 🌿
-            </p>
-            <div className="modal-body">
-              <input name="room_type" placeholder="Room Type" value={form.room_type} onChange={handleChange} />
-              <input name="budget_usd" placeholder="Budget (USD)" value={form.budget_usd} onChange={handleChange} />
-              <input name="style" placeholder="Style (e.g. Boho, Modern)" value={form.style} onChange={handleChange} />
-              <input name="lighting" placeholder="Lighting Preference" value={form.lighting} onChange={handleChange} />
-              <input name="color_palette" placeholder="Color Palette (comma-separated)" value={form.color_palette} onChange={handleChange} />
+        <div className="chat-section pretty-scroll">
+          {messages.map((m, i) => (
+            <div key={i} className={`chat-bubble ${m.sender}`}>
+              {m.text}
             </div>
-            <button className="submit-btn" onClick={handleSubmit} disabled={loading}>
-              {loading ? "Analyzing with LLaVA..." : "Start Reasoning"}
-            </button>
-          </>
-        )}
+          ))}
+          {loading && <div className="chat-bubble assistant">Thinking …</div>}
+        </div>
 
-        {submitted && (
-          <div className="chat-section">
-            <div className="chat-box">
-              {messages.map((m, idx) => (
-                <div key={idx} className={`chat-msg ${m.sender}`}>
-                  <span>{m.text}</span>
-                </div>
-              ))}
-              {loading && <div className="chat-msg assistant"><span>...</span></div>}
-            </div>
-
-            <div className="chat-input-area">
-              <input
-                type="text"
-                placeholder="Ask for layout, vibe, decor ideas..."
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleChat()}
-              />
-              <button onClick={handleChat}>Send</button>
-            </div>
-          </div>
-        )}
+        <div className="chat-input">
+          <input
+            placeholder="Ask for layout, vibe, or décor ideas…"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSend()}
+          />
+          <button onClick={handleSend}>Send</button>
+        </div>
       </div>
     </div>
   );
