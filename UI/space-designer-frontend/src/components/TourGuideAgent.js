@@ -21,16 +21,43 @@ const TourGuideAgent = () => {
       });
 
       if (!res.ok) throw new Error("Backend connection failed");
+
       const data = await res.json();
-      setResult(data.results);
+
+      // 🔧 Fix: Handle both direct results and raw_output (string with logs)
+      let parsed = null;
+      if (data.results) {
+        parsed = data.results;
+      } else if (data.raw_output) {
+        const match = data.raw_output.match(/\[\s*\{[\s\S]*?\}\s*\]/m);
+        if (match) {
+          try {
+            parsed = JSON.parse(match[0]);
+          } catch (e) {
+            console.error("JSON parse failed:", e);
+          }
+        } else {
+          console.warn("⚠️ No JSON array found in raw_output");
+        }
+      }
+
+      if (!parsed) throw new Error("No valid JSON data found.");
+      setResult(parsed);
       setStatus("Inspection complete ✅");
     } catch (err) {
-      console.error(err);
+      console.error("❌ Error:", err);
       setError("Agent failed — please retry.");
       setStatus("Agent Error ❌");
     } finally {
       setLoading(false);
     }
+  };
+
+  const getLocalPath = (p) => {
+    if (!p) return "";
+    return `http://localhost:5050${p
+      .replace("/Users/krushna/SpaceFigureAI/backend", "")
+      .replace("/Users/krushna/SpaceFigureAI", "")}`;
   };
 
   return (
@@ -50,54 +77,55 @@ const TourGuideAgent = () => {
           {loading && <p className="loader">🔍 Scanning environment...</p>}
           {error && <p className="error">{error}</p>}
 
-          {Array.isArray(result) && (
+          {Array.isArray(result) && result.length > 0 && (
             <div className="results fade-in">
-              <h3>Agent Results</h3>
+              <h3>🏠 Inspection Results</h3>
+
               {result.map((r, i) => (
                 <div key={i} className="card">
-                  <p><b>Mode:</b> {r.mode}</p>
+                  <div className="image-grid">
+                    <div>
+                      <h4>Original</h4>
+                      <img src={getLocalPath(r.source_image)} alt="original" />
+                    </div>
+                    <div>
+                      <h4>Annotated</h4>
+                      <img
+                        src={getLocalPath(r.annotated_image)}
+                        alt="annotated"
+                      />
+                    </div>
+                    <div>
+                      <h4>Depth Map</h4>
+                      <img src={getLocalPath(r.depth?.vis_path)} alt="depth" />
+                    </div>
+                  </div>
 
-                  <div className="objects">
-                    <b>Detected Objects:</b>
+                  <div className="meta-section">
+                    <h4>📦 Objects</h4>
                     {Object.keys(r.counts || {}).length ? (
-                      <ul>
+                      <ul className="object-list">
                         {Object.entries(r.counts).map(([k, v]) => (
-                          <li key={k}>{k}: <span className="count">{v}</span></li>
+                          <li key={k}>
+                            {k}: <span>{v}</span>
+                          </li>
                         ))}
                       </ul>
                     ) : (
-                      <p className="none">No detections found</p>
+                      <p className="none">No objects detected</p>
                     )}
-                  </div>
 
-                  {r.annotated_image && (
-                    <div className="preview">
-                      <img
-                        src={`http://localhost:5050/${r.annotated_image.replace(/.*\/backend\//, "")}`}
-                        alt="Detected Output"
-                      />
-                    </div>
-                  )}
+                    <h4>🧭 Orientation</h4>
+                    <p>{r.orientation?.orientation}</p>
 
-                  <div className="links">
-                    {r.csv && (
-                      <a
-                        href={`http://localhost:5050/${r.csv.replace(/.*\/backend\//, "")}`}
-                        download
-                        className="link-btn"
-                      >
-                        📄 Download CSV
-                      </a>
-                    )}
-                    {r.json && (
-                      <a
-                        href={`http://localhost:5050/${r.json.replace(/.*\/backend\//, "")}`}
-                        download
-                        className="link-btn"
-                      >
-                        🧾 View JSON
-                      </a>
-                    )}
+                    <h4>📏 Dimensions</h4>
+                    <pre>{JSON.stringify(r.dimensions, null, 2)}</pre>
+
+                    <h4>🏗️ Geometry</h4>
+                    <pre>{JSON.stringify(r.geometry, null, 2)}</pre>
+
+                    <h4>🌊 Depth Stats</h4>
+                    <pre>{JSON.stringify(r.depth, null, 2)}</pre>
                   </div>
                 </div>
               ))}

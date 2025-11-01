@@ -1,3 +1,4 @@
+// backend/routes/tourGuideRoutes.js
 import express from "express";
 import { exec } from "child_process";
 import fs from "fs";
@@ -8,91 +9,130 @@ const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 🧩 Paths
-const baseDir = path.join(__dirname, "../..");
+// 🌍 Base paths
+const baseDir = path.join(__dirname, "../.."); // /Users/krushna/SpaceFigureAI
 const backendDir = path.join(baseDir, "backend");
 const uploadsDir = path.join(backendDir, "uploads");
-const agentsPath = path.join(baseDir, "agents", "tour_guide_agent.py");
 const outputsDir = path.join(baseDir, "outputs");
 
-// 🗂️ Ensure outputs directory exists
+// 🧠 Agent path (used for logs)
+const agentPackage = "tour_guide_agent.main";
+
+// 🗂️ Ensure outputs dir exists
 if (!fs.existsSync(outputsDir)) fs.mkdirSync(outputsDir, { recursive: true });
 
-// 🧠 Helper: Get latest uploaded file
+// 🧠 Helper: Find latest uploaded file
 const getLatestUploadedFile = () => {
   const files = fs.readdirSync(uploadsDir)
     .filter(f => /\.(jpg|jpeg|png)$/i.test(f))
-    .map(f => ({ file: f, time: fs.statSync(path.join(uploadsDir, f)).mtime.getTime() }))
+    .map(f => ({
+      file: f,
+      time: fs.statSync(path.join(uploadsDir, f)).mtime.getTime(),
+    }))
     .sort((a, b) => b.time - a.time);
-
   return files.length ? path.join(uploadsDir, files[0].file) : null;
 };
 
-// 🚀 Route: Run Tour Guide Agent
+// 🚀 Run Tour Guide Agent
 router.post("/run", async (req, res) => {
   try {
-    let { image_path } = req.body;
     console.log("\n===============================");
-    console.log("📩 Received image_path from frontend:", image_path);
+    console.log("🛰️  Incoming /tour-guide/run request");
 
+    let { image_path, camera_height_m, fov_deg, prompt } = req.body;
+    console.log("📩 Request body:", req.body);
+
+    // ✅ Resolve image
     if (!image_path) {
       const latest = getLatestUploadedFile();
-      if (!latest) return res.status(400).json({ error: "No uploads found." });
+      if (!latest) {
+        console.error("❌ No uploads found");
+        return res.status(400).json({ error: "No uploaded images found." });
+      }
       image_path = latest;
-      console.log("📂 Using latest uploaded image:", latest);
+      console.log("📂 Using latest uploaded image:", image_path);
     } else if (image_path.startsWith("http://localhost:5050/")) {
-      image_path = path.join(backendDir, image_path.replace("http://localhost:5050/", ""));
+      image_path = path.join(
+        backendDir,
+        image_path.replace("http://localhost:5050/", "")
+      );
+      console.log("🔗 Converted localhost URL to local path:", image_path);
     }
 
     const fullInputPath = path.resolve(image_path);
-    console.log("🧭 Full image path:", fullInputPath);
-    console.log("🧠 Python agent path:", agentsPath);
-
-    if (!fs.existsSync(fullInputPath))
+    if (!fs.existsSync(fullInputPath)) {
+      console.error("❌ Image not found:", fullInputPath);
       return res.status(404).json({ error: `Image not found: ${fullInputPath}` });
+    }
 
+    console.log("🧭 Full image path:", fullInputPath);
+    console.log("🧠 Agent module:", agentPackage);
+
+    // ✅ Build command
     const pythonCmd = process.platform === "win32" ? "python" : "python3";
-    const command = `${pythonCmd} "${agentsPath}" --input "${fullInputPath}" --output "${outputsDir}"`;
+    const cmdParts = [
+      pythonCmd,
+      "-m",
+      agentPackage,
+      `--input "${fullInputPath}"`,
+      `--output "${outputsDir}"`,
+    ];
+    if (camera_height_m) cmdParts.push(`--camera_height_m ${camera_height_m}`);
+    if (fov_deg) cmdParts.push(`--fov_deg ${fov_deg}`);
+    if (prompt) cmdParts.push(`--prompt "${prompt}"`);
 
-    console.log("🚀 Executing:", command);
+    const command = cmdParts.join(" ");
+    console.log("🚀 Executing command:");
+    console.log(command);
+    console.log("===================================");
 
-    exec(command, { maxBuffer: 1024 * 1024 * 50 }, (error, stdout, stderr) => {
-      console.log("📤 STDOUT:", stdout.trim());
-      console.log("📥 STDERR:", stderr.trim());
+    // ✅ Execute with correct working directory + PYTHONPATH
+    exec(
+      command,
+      {
+        cwd: baseDir, // ✅ Run from SpaceFigureAI root
+        env: {
+          ...process.env,
+          PYTHONPATH: `${baseDir}/agents:${baseDir}`, // ✅ Add both project root and agents folder
+        },
+        maxBuffer: 1024 * 1024 * 200,
+      },
+      (error, stdout, stderr) => {
+        console.log("\n📤 STDOUT:\n", stdout.trim());
+        console.log("\n📥 STDERR:\n", stderr.trim());
 
-      if (error) {
-        console.error("❌ Execution Error:", error.message);
-        return res.status(500).json({
-          error: "Tour Guide Agent failed to run.",
-          details: stderr || error.message,
+        if (error) {
+          console.error("❌ Execution Error:", error.message);
+          return res.status(500).json({
+            error: "Tour Guide Agent execution failed",
+            details: stderr || error.message,
+          });
+        }
+
+        // ✅ Try to parse JSON output
+        let parsed = null;
+        try {
+          parsed = JSON.parse(stdout);
+          console.log("✅ JSON parsed successfully.");
+        } catch (e) {
+          console.warn("⚠️ Could not parse JSON output:", e.message);
+          parsed = { raw_output: stdout.trim() };
+        }
+
+        const topKeys = Array.isArray(parsed)
+          ? Object.keys(parsed[0] || {})
+          : Object.keys(parsed || {});
+        console.log("✅ Final Parsed JSON keys:", topKeys);
+        console.log("===============================\n");
+
+        res.json({
+          message: "Tour Guide Agent completed successfully ✅",
+          results: parsed,
         });
       }
-
-      // 🧠 Extract JSON section from noisy YOLO output
-      const jsonMatch = stdout.match(/\[\s*{[\s\S]*}\s*\]/);
-      let parsedOutput;
-
-      if (jsonMatch) {
-        try {
-          parsedOutput = JSON.parse(jsonMatch[0]);
-        } catch (e) {
-          console.warn("⚠️ JSON parse failed:", e.message);
-          parsedOutput = { raw_output: stdout.trim() };
-        }
-      } else {
-        parsedOutput = { raw_output: stdout.trim() };
-      }
-
-      console.log("✅ Parsed JSON:", parsedOutput);
-      console.log("===============================\n");
-
-      res.json({
-        message: "Tour Guide Agent completed successfully",
-        results: parsedOutput,
-      });
-    });
+    );
   } catch (err) {
-    console.error("❌ /tour-guide/run route failed:", err.message);
+    console.error("🔥 Route /tour-guide/run crashed:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
