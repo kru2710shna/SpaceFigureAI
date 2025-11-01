@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
 import Notification from "./Notification";
-import IntakeModal from "./IntakeModal";
 import "../styles/upload.css";
+import IntakeModal from "./IntakeModal";
+
+
 
 function UploadForm() {
   const [files, setFiles] = useState([]);
@@ -101,13 +103,8 @@ function UploadForm() {
         />
       )}
 
-      {showIntake && (
-        <IntakeModal
-          onClose={() => setShowIntake(false)}
-          imageSrc={uploadedImg}
-          analysis={analysis}
-        />
-      )}
+
+      {showIntake && <IntakeModal imageSrc={uploadedImg} />}
     </>
   );
 }

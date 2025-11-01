@@ -1,90 +1,74 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "../styles/IntakeModal.css";
 
-function IntakeModal({ onClose, imageSrc }) {
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState("Checking…");
+function IntakeModal({ imageSrc }) {
+  const [status, setStatus] = useState("Checking...");
+  const [caption, setCaption] = useState("");
+  const [reasoning, setReasoning] = useState("");
+  const [suggestion, setSuggestion] = useState("");
+  const [error, setError] = useState(null);
 
-  // check backend /llava/status once on open
+  // Check backend status once
   useEffect(() => {
-    axios.get("http://127.0.0.1:5050/llava/status")
-      .then((res) => setStatus(res.data.llava))
-      .catch(() => setStatus("⚠️ Offline"));
+    axios
+      .get("http://127.0.0.1:5050/llava/status")
+      .then((res) => setStatus(res.data.llava || "Online"))
+      .catch(() => setStatus("Offline"));
   }, []);
 
-  // initial reasoning
+  // Analyze uploaded image
   useEffect(() => {
-    const run = async () => {
+    const analyze = async () => {
+      if (!imageSrc) return;
       try {
-        setLoading(true);
-        const res = await axios.post("http://127.0.0.1:5050/llava/analyze", { image_url: imageSrc });
-        setMessages([
-          { sender: "assistant", text: res.data.caption || "Analyzing your design…" },
-          { sender: "assistant", text: res.data.reasoning || res.data.suggestion || "Let's talk style ideas!" },
-        ]);
+        const res = await axios.post("http://127.0.0.1:5050/llava/analyze", {
+          image_url: imageSrc,
+        });
+
+        setCaption(res.data.caption || "No caption generated.");
+        setReasoning(res.data.reasoning || "No reasoning provided.");
+        setSuggestion(res.data.suggestion || "No design suggestions found.");
       } catch {
-        setMessages([{ sender: "assistant", text: "⚠️ Failed to analyze image." }]);
-      } finally {
-        setLoading(false);
+        setError("Failed to analyze image.");
       }
     };
-    run();
+    analyze();
   }, [imageSrc]);
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
-    const userMsg = { sender: "user", text: input };
-    setMessages((prev) => [...prev, userMsg]);
-    setInput("");
-    setLoading(true);
-    try {
-      const res = await axios.post("http://127.0.0.1:5050/llava/chat", {
-        image_url: imageSrc,
-        message: userMsg.text,
-      });
-      setMessages((prev) => [...prev, { sender: "assistant", text: res.data.reply }]);
-    } catch {
-      setMessages((prev) => [...prev, { sender: "assistant", text: "Error: Unable to generate response." }]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <div className="modal-overlay">
-      <div className="modal-container pretty-scroll">
-        <header className="modal-header">
-          <div className="title-row">
-            <h3>🧠 Design Reasoning Agent</h3>
-            <span className="status-chip">{status}</span>
-          </div>
-          <button className="close-btn" onClick={onClose}>×</button>
-        </header>
-
-        <div className="image-frame">
-          <img src={imageSrc} alt="uploaded" />
+    <div className="intake-modal-wrapper">
+      <div className="intake-panel">
+        <div className="intake-header">
+          <h3>Design Reasoning Agent</h3>
+          <p className="status">
+            Status: <span>{status}</span>
+          </p>
         </div>
 
-        <div className="chat-section pretty-scroll">
-          {messages.map((m, i) => (
-            <div key={i} className={`chat-bubble ${m.sender}`}>
-              {m.text}
-            </div>
-          ))}
-          {loading && <div className="chat-bubble assistant">Thinking …</div>}
-        </div>
+        <div className="result-section">
+          <img src={imageSrc} alt="Uploaded Blueprint" className="analysis-img" />
 
-        <div className="chat-input">
-          <input
-            placeholder="Ask for layout, vibe, or décor ideas…"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          />
-          <button onClick={handleSend}>Send</button>
+          {error ? (
+            <p className="error-text">{error}</p>
+          ) : (
+            <>
+              <div className="info-card">
+                <h4>Caption</h4>
+                <p>{caption}</p>
+              </div>
+
+              <div className="info-card">
+                <h4>Reasoning</h4>
+                <p>{reasoning}</p>
+              </div>
+
+              <div className="info-card">
+                <h4>Suggestions</h4>
+                <p>{suggestion}</p>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
