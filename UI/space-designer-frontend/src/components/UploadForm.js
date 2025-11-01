@@ -13,7 +13,7 @@ function UploadForm() {
   const [showNotif, setShowNotif] = useState(false);
   const [showIntake, setShowIntake] = useState(false);
   const [message, setMessage] = useState("");
-  const [analysis, setAnalysis] = useState(null);
+  const [setAnalysis] = useState(null);
 
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
