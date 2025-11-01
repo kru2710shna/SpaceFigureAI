@@ -11,6 +11,7 @@ function IntakeModal({ imageSrc }) {
   const [question, setQuestion] = useState("");
   const [answers, setAnswers] = useState({});
   const [showQuestion, setShowQuestion] = useState(false);
+  const [currentInput, setCurrentInput] = useState("");
 
   // ✅ Check backend status
   useEffect(() => {
@@ -30,7 +31,7 @@ function IntakeModal({ imageSrc }) {
     }
   }, []);
 
-  // ✅ Save progress
+  // ✅ Save progress persistently
   useEffect(() => {
     localStorage.setItem("designSession", JSON.stringify({ answers, step }));
   }, [answers, step]);
@@ -39,28 +40,22 @@ function IntakeModal({ imageSrc }) {
   useEffect(() => {
     const confirmBlueprint = async () => {
       if (!imageSrc) return;
-
       try {
         const res = await fetch("http://127.0.0.1:5050/groq/confirm", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ image_url: imageSrc }),
         });
-
         const data = await res.json();
-
         if (data.confirmed) {
           setShowQuestion(true);
           fetchNextQuestion(0, {});
-        } else {
-          setError("The uploaded image is not a valid blueprint.");
-        }
+        } else setError("The uploaded image is not a valid blueprint.");
       } catch (err) {
         console.error("Confirm error:", err);
         setError("Failed to analyze blueprint via Groq API.");
       }
     };
-
     confirmBlueprint();
   }, [imageSrc]);
 
@@ -72,7 +67,6 @@ function IntakeModal({ imageSrc }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ step: currentStep, prevAnswers: currentAnswers }),
       });
-
       const data = await res.json();
 
       if (data.done) {
@@ -80,6 +74,7 @@ function IntakeModal({ imageSrc }) {
         analyzeDesign();
       } else {
         setQuestion(data.question || "Next question unavailable.");
+        setCurrentInput(""); // reset input for next question
       }
     } catch (err) {
       console.error("Question error:", err);
@@ -87,28 +82,32 @@ function IntakeModal({ imageSrc }) {
     }
   };
 
-  // ✅ Handle user answer
-  const handleAnswer = (ans) => {
-    const updated = { ...answers, [`step${step}`]: ans };
+  // ✅ Handle user answer input submission
+  const handleSubmitAnswer = () => {
+    if (!currentInput.trim()) return;
+    const updated = { ...answers, [`step${step}`]: currentInput.trim() };
     setAnswers(updated);
-    fetchNextQuestion(step + 1, updated);
     setStep(step + 1);
+    fetchNextQuestion(step + 1, updated);
   };
 
-  // ✅ Final design reasoning (Groq analysis)
+  // ✅ Handle skip
+  const handleSkip = () => {
+    const updated = { ...answers, [`step${step}`]: "Skipped" };
+    setAnswers(updated);
+    setStep(step + 1);
+    fetchNextQuestion(step + 1, updated);
+  };
+
+  // ✅ Final reasoning (Groq analysis)
   const analyzeDesign = async () => {
     try {
       const res = await fetch("http://127.0.0.1:5050/groq/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          image_url: imageSrc,
-          intake: answers,
-        }),
+        body: JSON.stringify({ image_url: imageSrc, intake: answers }),
       });
-
       const data = await res.json();
-
       setCaption(data.caption || "No caption generated.");
       setReasoning(data.reasoning || "No reasoning provided.");
       setSuggestion(data.suggestion || "No suggestions found.");
@@ -118,7 +117,7 @@ function IntakeModal({ imageSrc }) {
     }
   };
 
-  // ✅ Render
+  // ✅ UI render
   return (
     <div className="intake-modal-wrapper">
       <div className="intake-panel">
@@ -130,22 +129,26 @@ function IntakeModal({ imageSrc }) {
         </div>
 
         <div className="result-section">
-          <img
-            src={imageSrc}
-            alt="Uploaded Blueprint"
-            className="analysis-img"
-          />
+          <img src={imageSrc} alt="Uploaded Blueprint" className="analysis-img" />
 
           {error && <p className="error-text">{error}</p>}
 
           {showQuestion ? (
             <div className="question-block">
               <h4>{question}</h4>
+
+              {/* ✅ Input field */}
+              <input
+                type="text"
+                className="answer-input"
+                value={currentInput}
+                placeholder="Type your answer here..."
+                onChange={(e) => setCurrentInput(e.target.value)}
+              />
+
               <div className="btn-row">
-                <button onClick={() => handleAnswer("Skip")}>Skip</button>
-                <button onClick={() => handleAnswer("Continue")}>
-                  Continue
-                </button>
+                <button className="skip-btn" onClick={handleSkip}>Skip</button>
+                <button className="submit-btn" onClick={handleSubmitAnswer}>Submit Answer</button>
               </div>
             </div>
           ) : (

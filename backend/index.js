@@ -6,6 +6,8 @@ import path from "path";
 import sharp from "sharp";
 import { fileURLToPath } from "url";
 import groqRoutes from "./routes/groqRoutes.js";
+import { Image } from "image-js";
+
 
 const app = express();
 const PORT = 5050;
@@ -58,40 +60,50 @@ app.post("/upload", upload.array("files"), (req, res) => {
 });
 
 // ---------- Blueprint Validation (Edge-based) ----------
+
 app.post("/validate-blueprint", async (req, res) => {
   try {
     const { image_url } = req.body;
-    if (!image_url) return res.status(400).json({ error: "Missing image_url" });
+    if (!image_url)
+      return res.status(400).json({ error: "Missing image_url" });
 
-    // 1️⃣ Fetch image
+    // Load the image
     const response = await fetch(image_url);
     const buffer = Buffer.from(await response.arrayBuffer());
+    const img = await Image.load(buffer);
 
-    // 2️⃣ Convert to grayscale
-    const grayscale = await sharp(buffer).greyscale().toBuffer();
+    // Convert to grayscale + edge detection
+    const gray = img.grey();
+    const edges = gray.sobelFilter();
 
-    // 3️⃣ Detect edges using Sobel operator (fallback if no OpenCV)
-    const pixels = Uint8Array.from(grayscale);
-    let edgeCount = 0;
-    for (let i = 1; i < pixels.length; i++) {
-      if (Math.abs(pixels[i] - pixels[i - 1]) > 30) edgeCount++;
-    }
+    // Compute edge density and average brightness
+    const pixels = edges.data;
+    const edgeCount = pixels.filter((v) => v > 50).length; // strong edges
+    const edgeDensity = edgeCount / pixels.length;
+    const brightness = gray.mean / 255;
 
-    const edgeRatio = edgeCount / pixels.length;
-    const isBlueprint = edgeRatio > 0.015;
+    // Adaptive thresholding
+    const isBlueprint =
+      edgeDensity > 0.002 || (edgeDensity > 0.001 && brightness > 0.4);
 
-    return res.json({
-      is_blueprint: isBlueprint,
-      edge_density: edgeRatio.toFixed(4),
-      reason: isBlueprint
-        ? "Detected structured edges suggesting blueprint layout."
-        : "Low edge density; not likely a blueprint.",
-    });
+    const reason = isBlueprint
+      ? `Detected structured wall edges (edgeDensity=${edgeDensity.toFixed(4)}).`
+      : `Low edge structure (edgeDensity=${edgeDensity.toFixed(4)}).`;
+
+    console.log(
+      `🧩 Edge Density: ${edgeDensity.toFixed(4)} (${isBlueprint ? "✅ Blueprint" : "⚠️ Not Blueprint"})`
+    );
+
+    res.json({ is_blueprint: isBlueprint, reason });
   } catch (err) {
     console.error("❌ Blueprint validation failed:", err.message);
-    res.status(500).json({ error: "Blueprint validation failed." });
+    res.json({
+      is_blueprint: true, // fallback to Groq
+      reason: "Local validator failed, deferring to Groq reasoning.",
+    });
   }
 });
+
 
 // ---------- Static + Groq ----------
 app.use("/uploads", express.static(uploadDir));
