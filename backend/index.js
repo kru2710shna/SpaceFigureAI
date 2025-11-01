@@ -8,6 +8,7 @@ import groqRoutes from "./routes/groqRoutes.js";
 import * as ImageJS from "image-js";
 const { Image } = ImageJS;
 import tourGuideRoutes from "./routes/tourGuideRoutes.js";
+import mathematicalRoute from './routes/mathematical.js';
 import dotenv from "dotenv";
 dotenv.config();
 const app = express();
@@ -26,6 +27,7 @@ const __dirname = path.dirname(__filename);
 const uploadDir = path.join(__dirname, "uploads");
 const outputsDir = path.join(__dirname, "..", "agents", "outputs"); // ✅ Add this
 
+app.use('/mathematical', mathematicalRoute);
 // ---------- Ensure Upload Directory ----------
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);

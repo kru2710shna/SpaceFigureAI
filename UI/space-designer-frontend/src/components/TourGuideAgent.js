@@ -8,6 +8,11 @@ const TourGuideAgent = () => {
   const [error, setError] = useState("");
   const [result, setResult] = useState(null);
 
+    // Mathematical agent state
+  const [pixelsPerMeter, setPixelsPerMeter] = useState("200");
+  const [mathLoading, setMathLoading] = useState(false);
+  const [mathResult, setMathResult] = useState(null);
+
   const handleStart = async () => {
     try {
       setError("");
@@ -40,6 +45,51 @@ const TourGuideAgent = () => {
       setStatus("Agent Error ❌");
     } finally {
       setLoading(false);
+    }
+  };
+
+   const handleAddDimensions = async (jsonPath) => {
+    try {
+      setError("");
+      setMathLoading(true);
+      setStatus("Adding real-world dimensions...");
+
+      const ppm = parseFloat(pixelsPerMeter);
+      if (isNaN(ppm) || ppm <= 0) {
+        throw new Error("Please enter a valid positive number for pixels per meter");
+      }
+
+      // Extract the relative path from the full URL
+      const relativePath = jsonPath.replace(/^http:\/\/[^/]+\//, '');
+      
+      const res = await fetch("http://localhost:5050/mathematical/add-dimensions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonPath: relativePath,
+          pixelsPerMeter: ppm
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to add dimensions");
+      }
+
+      const data = await res.json();
+      console.log("Mathematical agent response:", data);
+
+      setMathResult(data);
+      setStatus("Dimensions added successfully ✅");
+      
+      // Show success message
+      alert(`✅ Dimensions added!\nOutput saved at: ${data.outputPath}`);
+    } catch (err) {
+      console.error("❌ Math Error:", err);
+      setError(err.message || "Failed to add dimensions");
+      setStatus("Dimension calculation failed ❌");
+    } finally {
+      setMathLoading(false);
     }
   };
 
@@ -109,6 +159,52 @@ const TourGuideAgent = () => {
                       <p className="none">No objects detected</p>
                     )}
                   </div>
+
+                  {/* Mathematical Agent Section */}
+                  {r.json && (
+                    <div className="math-section">
+                      <h4>📐 Add Real-World Dimensions</h4>
+                      <div className="dimension-input-group">
+                        <label htmlFor={`pixels-per-meter-${i}`}>
+                          Pixels per Meter:
+                        </label>
+                        <input
+                          id={`pixels-per-meter-${i}`}
+                          type="number"
+                          value={pixelsPerMeter}
+                          onChange={(e) => setPixelsPerMeter(e.target.value)}
+                          placeholder="e.g., 200"
+                          className="dimension-input"
+                          min="0.1"
+                          step="0.1"
+                          disabled={mathLoading}
+                        />
+                        <button
+                          className="btn-math"
+                          onClick={() => handleAddDimensions(r.json)}
+                          disabled={mathLoading}
+                        >
+                          {mathLoading ? "Calculating..." : "Calculate Dimensions"}
+                        </button>
+                      </div>
+                      
+                      {mathResult && (
+                        <div className="math-result">
+                          <p className="success-msg">
+                            ✅ {mathResult.message}
+                          </p>
+                          <a
+                            href={`http://localhost:5050/${mathResult.outputPath}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="file-link"
+                          >
+                            📄 View Updated JSON with Dimensions
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Output Files */}
                   <div className="files-section">
