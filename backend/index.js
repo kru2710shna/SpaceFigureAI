@@ -3,12 +3,15 @@ import cors from "cors";
 import multer from "multer";
 import fs from "fs";
 import path from "path";
-import sharp from "sharp";
 import { fileURLToPath } from "url";
 import groqRoutes from "./routes/groqRoutes.js";
-import { Image } from "image-js";
+import * as ImageJS from "image-js";
+const { Image } = ImageJS;
+import tourGuideRoutes from "./routes/tourGuideRoutes.js";
+import dotenv from "dotenv";
 
 
+dotenv.config();
 const app = express();
 const PORT = 5050;
 
@@ -108,6 +111,8 @@ app.post("/validate-blueprint", async (req, res) => {
 // ---------- Static + Groq ----------
 app.use("/uploads", express.static(uploadDir));
 app.use("/groq", groqRoutes);
+app.use("/tour-guide", tourGuideRoutes);
+
 
 // ---------- Root ----------
 app.get("/", (_, res) => res.send("Backend is running ✅"));

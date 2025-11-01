@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../styles/IntakeModal.css";
+import { useNavigate } from "react-router-dom";
+
 
 function IntakeModal({ imageSrc }) {
   const [status, setStatus] = useState("Checking...");
@@ -12,6 +14,29 @@ function IntakeModal({ imageSrc }) {
   const [answers, setAnswers] = useState({});
   const [showQuestion, setShowQuestion] = useState(false);
   const [currentInput, setCurrentInput] = useState("");
+  const navigate = useNavigate();
+
+  const fetchNextQuestion = async (currentStep, currentAnswers) => {
+    try {
+      const res = await fetch("http://127.0.0.1:5050/groq/questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ step: currentStep, prevAnswers: currentAnswers }),
+      });
+      const data = await res.json();
+
+      if (data.done) {
+        setShowQuestion(false);
+        analyzeDesign();
+      } else {
+        setQuestion(data.question || "Next question unavailable.");
+        setCurrentInput(""); // reset input for next question
+      }
+    } catch (err) {
+      console.error("Question error:", err);
+      setError("Question fetch failed.");
+    }
+  };
 
   // ✅ Check backend status
   useEffect(() => {
@@ -57,30 +82,7 @@ function IntakeModal({ imageSrc }) {
       }
     };
     confirmBlueprint();
-  }, [imageSrc]);
-
-  // ✅ Fetch next question
-  const fetchNextQuestion = async (currentStep, currentAnswers) => {
-    try {
-      const res = await fetch("http://127.0.0.1:5050/groq/questions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ step: currentStep, prevAnswers: currentAnswers }),
-      });
-      const data = await res.json();
-
-      if (data.done) {
-        setShowQuestion(false);
-        analyzeDesign();
-      } else {
-        setQuestion(data.question || "Next question unavailable.");
-        setCurrentInput(""); // reset input for next question
-      }
-    } catch (err) {
-      console.error("Question error:", err);
-      setError("Question fetch failed.");
-    }
-  };
+  }, [imageSrc, fetchNextQuestion]);
 
   // ✅ Handle user answer input submission
   const handleSubmitAnswer = () => {
@@ -167,10 +169,21 @@ function IntakeModal({ imageSrc }) {
               </div>
             </>
           )}
+          {!showQuestion && caption && (
+            <div className="next-step-container">
+              <button
+                className="next-step-btn"
+                onClick={() => navigate("/tour-guide", { state: { imageSrc } })}
+              >
+                Click here for Housing Tour— we’ll be moving to having a Tour for the House
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
+
 }
 
 export default IntakeModal;

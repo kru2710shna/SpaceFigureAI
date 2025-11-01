@@ -182,3 +182,27 @@
 .skip-btn:hover {
   background: rgba(255, 255, 255, 0.15);
 }
+
+
+/* Next-step button */
+.next-step-container {
+  text-align: center;
+  margin-top: 2rem;
+}
+.next-step-btn {
+  background: #9b8eff;
+  color: #fff;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.next-step-btn:hover {
+  background: #b2a4ff;
+  transform: translateY(-2px);
+}
+
+
