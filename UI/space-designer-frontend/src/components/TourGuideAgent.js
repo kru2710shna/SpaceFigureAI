@@ -17,47 +17,30 @@ const TourGuideAgent = () => {
       const res = await fetch("http://localhost:5050/tour-guide/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image_url: "" }),
+        body: JSON.stringify({ mode: "blueprint" }),
       });
 
-      if (!res.ok) throw new Error("Backend connection failed");
-
-      const data = await res.json();
-
-      // 🔧 Fix: Handle both direct results and raw_output (string with logs)
-      let parsed = null;
-      if (data.results) {
-        parsed = data.results;
-      } else if (data.raw_output) {
-        const match = data.raw_output.match(/\[\s*\{[\s\S]*?\}\s*\]/m);
-        if (match) {
-          try {
-            parsed = JSON.parse(match[0]);
-          } catch (e) {
-            console.error("JSON parse failed:", e);
-          }
-        } else {
-          console.warn("⚠️ No JSON array found in raw_output");
-        }
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Backend connection failed");
       }
 
-      if (!parsed) throw new Error("No valid JSON data found.");
-      setResult(parsed);
+      const data = await res.json();
+      console.log("Backend response:", data);
+
+      if (!data.results || !Array.isArray(data.results)) {
+        throw new Error("Invalid response format from backend");
+      }
+
+      setResult(data.results);
       setStatus("Inspection complete ✅");
     } catch (err) {
       console.error("❌ Error:", err);
-      setError("Agent failed — please retry.");
+      setError(err.message || "Agent failed — please retry.");
       setStatus("Agent Error ❌");
     } finally {
       setLoading(false);
     }
-  };
-
-  const getLocalPath = (p) => {
-    if (!p) return "";
-    return `http://localhost:5050${p
-      .replace("/Users/krushna/SpaceFigureAI/backend", "")
-      .replace("/Users/krushna/SpaceFigureAI", "")}`;
   };
 
   return (
@@ -83,49 +66,79 @@ const TourGuideAgent = () => {
 
               {result.map((r, i) => (
                 <div key={i} className="card">
-                  <div className="image-grid">
-                    <div>
-                      <h4>Original</h4>
-                      <img src={getLocalPath(r.source_image)} alt="original" />
-                    </div>
-                    <div>
-                      <h4>Annotated</h4>
+                  {/* Mode Badge */}
+                  <div className="mode-badge">
+                    Mode: <strong>{r.mode}</strong>
+                  </div>
+
+                  {/* Annotated Image Only */}
+                  <div className="image-section">
+                    <h4>📸 Detected Objects</h4>
+                    {r.annotated_image ? (
                       <img
-                        src={getLocalPath(r.annotated_image)}
-                        alt="annotated"
+                        src={r.annotated_image}
+                        alt="Annotated floor plan"
+                        className="annotated-img"
+                        onError={(e) => {
+                          console.error("Image load failed:", r.annotated_image);
+                          e.target.style.display = "none";
+                          e.target.nextSibling.style.display = "block";
+                        }}
                       />
-                    </div>
-                    <div>
-                      <h4>Depth Map</h4>
-                      <img src={getLocalPath(r.depth?.vis_path)} alt="depth" />
+                    ) : (
+                      <p className="none">No annotated image available</p>
+                    )}
+                    <div className="error-msg" style={{ display: "none" }}>
+                      Failed to load image
                     </div>
                   </div>
 
+                  {/* Detection Counts */}
                   <div className="meta-section">
-                    <h4>📦 Objects</h4>
-                    {Object.keys(r.counts || {}).length ? (
+                    <h4>📦 Detected Objects</h4>
+                    {r.counts && Object.keys(r.counts).length > 0 ? (
                       <ul className="object-list">
-                        {Object.entries(r.counts).map(([k, v]) => (
-                          <li key={k}>
-                            {k}: <span>{v}</span>
+                        {Object.entries(r.counts).map(([label, count]) => (
+                          <li key={label}>
+                            <span className="label">{label}:</span>
+                            <span className="count">{count}</span>
                           </li>
                         ))}
                       </ul>
                     ) : (
                       <p className="none">No objects detected</p>
                     )}
+                  </div>
 
-                    <h4>🧭 Orientation</h4>
-                    <p>{r.orientation?.orientation}</p>
-
-                    <h4>📏 Dimensions</h4>
-                    <pre>{JSON.stringify(r.dimensions, null, 2)}</pre>
-
-                    <h4>🏗️ Geometry</h4>
-                    <pre>{JSON.stringify(r.geometry, null, 2)}</pre>
-
-                    <h4>🌊 Depth Stats</h4>
-                    <pre>{JSON.stringify(r.depth, null, 2)}</pre>
+                  {/* Output Files */}
+                  <div className="files-section">
+                    <h4>📁 Output Files</h4>
+                    <ul className="file-list">
+                      {r.json && (
+                        <li>
+                          <a
+                            href={r.json}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="file-link"
+                          >
+                            📄 Detections JSON
+                          </a>
+                        </li>
+                      )}
+                      {r.csv && (
+                        <li>
+                          <a
+                            href={r.csv}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="file-link"
+                          >
+                            📊 Counts CSV
+                          </a>
+                        </li>
+                      )}
+                    </ul>
                   </div>
                 </div>
               ))}

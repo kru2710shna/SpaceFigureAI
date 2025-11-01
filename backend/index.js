@@ -9,25 +9,33 @@ import * as ImageJS from "image-js";
 const { Image } = ImageJS;
 import tourGuideRoutes from "./routes/tourGuideRoutes.js";
 import dotenv from "dotenv";
-
-
 dotenv.config();
 const app = express();
 const PORT = 5050;
 
 // ---------- Middleware ----------
-app.use(cors());
+app.use(cors({
+  origin: ["http://localhost:3000", "http://localhost:5173"], // React and Vite
+  credentials: true
+}));
 app.use(express.json());
 
 // ---------- Paths ----------
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const uploadDir = path.join(__dirname, "uploads");
+const outputsDir = path.join(__dirname, "..", "agents", "outputs"); // ✅ Add this
 
 // ---------- Ensure Upload Directory ----------
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
   console.log(`📁 Created uploads directory at ${uploadDir}`);
+}
+
+// ✅ Ensure Outputs Directory
+if (!fs.existsSync(outputsDir)) {
+  fs.mkdirSync(outputsDir, { recursive: true });
+  console.log(`📁 Created outputs directory at ${outputsDir}`);
 }
 
 // ---------- Logger ----------
@@ -108,14 +116,27 @@ app.post("/validate-blueprint", async (req, res) => {
 });
 
 
-// ---------- Static + Groq ----------
+// ---------- Static + Routes ----------
 app.use("/uploads", express.static(uploadDir));
+app.use("/agents/outputs", express.static(outputsDir)); // ✅ ADD THIS LINE - Critical for serving annotated images
 app.use("/groq", groqRoutes);
 app.use("/tour-guide", tourGuideRoutes);
 
 
 // ---------- Root ----------
 app.get("/", (_, res) => res.send("Backend is running ✅"));
+
+// ---------- Test Outputs Directory ----------
+app.get("/test-outputs", (req, res) => {
+  const files = fs.readdirSync(outputsDir);
+  res.json({
+    outputsDir,
+    files,
+    sampleUrl: files.length > 0 
+      ? `http://localhost:${PORT}/agents/outputs/${files[0]}`
+      : "No files yet"
+  });
+});
 
 // ---------- Start Server ----------
 app.listen(PORT, () => {
@@ -124,5 +145,6 @@ app.listen(PORT, () => {
   console.log(`🚀 Backend Server is running`);
   console.log(`🌐 Port: ${PORT}`);
   console.log(`📂 Upload Directory: ${uploadDir}`);
+  console.log(`📂 Outputs Directory: ${outputsDir}`); // ✅ Add this log
   console.log("=========================================");
 });
