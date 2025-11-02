@@ -2,23 +2,32 @@ import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import "../styles/DepthViewer.css";
+import { useNavigate } from "react-router-dom";
 
 export default function DepthViewer() {
   const mountRef = useRef(null);
+  const navigate = useNavigate();
+
+  // ───────────────────────────────
+  // ⚙️  State Management
+  // ───────────────────────────────
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [depthUrl, setDepthUrl] = useState("");
-  const [colorUrl, setColorUrl] = useState("");
-  const [useColor, setUseColor] = useState(false);
-  const [scale, setScale] = useState(2.0);
+  const [mathData, setMathData] = useState(null);
+  const [scale, setScale] = useState(1.5);
+  const [reasonedObjects, setReasonedObjects] = useState([]);
 
-  // ---------- Fetch Depth Map from Backend ----------
+  // ───────────────────────────────
+  // 🔹 Fetch Pipeline (Depth + Math + Reasoning)
+  // ───────────────────────────────
   useEffect(() => {
-    async function fetchDepth() {
+    const init = async () => {
       try {
-        setError("");
         setLoading(true);
+        setError("");
 
+        // 1️⃣ Get latest uploaded image
         const res = await fetch("http://localhost:5050/test-outputs");
         const data = await res.json();
 
@@ -26,120 +35,149 @@ export default function DepthViewer() {
           ?.filter((f) => /\.(jpeg|jpg|png)$/i.test(f))
           .sort((a, b) => b.localeCompare(a))[0];
 
-        if (!latest) {
-          setError("No uploaded images found for depth rendering.");
-          setLoading(false);
-          return;
-        }
+        if (!latest) throw new Error("No uploaded image found for depth rendering.");
 
-        console.log("🖼️ Latest image:", latest);
-
+        // 2️⃣ Generate depth map
         const depthRes = await fetch("http://localhost:5050/depth/run", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ image: latest }),
         });
-
         const depthData = await depthRes.json();
-        console.log("🧠 Depth response:", depthData);
-
-        if (!depthData.depth_url) {
-          throw new Error("No depth URL returned from backend.");
-        }
+        if (!depthData.depth_url) throw new Error("Depth URL missing in response.");
 
         setDepthUrl(depthData.depth_url);
-        if (depthData.color_url) setColorUrl(depthData.color_url);
+
+        // 3️⃣ Fetch Math Agent results (scaling + layout)
+        const mathRes = await fetch("http://localhost:5050/math/run");
+        const mathJson = await mathRes.json();
+        setMathData(mathJson);
+
+        // 4️⃣ Optional: Call Groq reasoning for scene correction
+        const reasonRes = await fetch("http://localhost:5050/reason/groq", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mathData: mathJson }),
+        });
+
+        const reasonJson = await reasonRes.json();
+        if (reasonJson.correctedScene) {
+          setReasonedObjects(reasonJson.correctedScene);
+        }
       } catch (err) {
-        console.error("❌ Depth fetch failed:", err);
-        setError(err.message || "Depth generation failed.");
+        console.error("❌ Initialization failed:", err);
+        setError(err.message);
       } finally {
         setLoading(false);
       }
-    }
+    };
 
-    fetchDepth();
+    init();
   }, []);
 
-  // ---------- Three.js Renderer ----------
+  // ───────────────────────────────
+  // 🧱 Three.js Scene Setup
+  // ───────────────────────────────
   useEffect(() => {
-    if (!depthUrl || error) return;
+    if (!depthUrl || !mathData || error) return;
 
     const mount = mountRef.current;
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x101010);
 
-    // ✅ Camera
+    // Scene setup
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0a0a0a);
+
     const camera = new THREE.PerspectiveCamera(
-      70,
+      65,
       window.innerWidth / window.innerHeight,
       0.1,
-      1000
+      200
     );
-    camera.position.set(4, 5, 6);
+    camera.position.set(6, 8, 10);
 
-    // ✅ Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     mount.appendChild(renderer.domElement);
 
-    // ✅ Texture
-    const textureLoader = new THREE.TextureLoader();
-    const texture = textureLoader.load(useColor ? colorUrl || depthUrl : depthUrl);
+    // Lighting
+    const hemi = new THREE.HemisphereLight(0xffffff, 0x404040, 1.3);
+    scene.add(hemi);
 
-    // ✅ Geometry + Material
-    const geometry = new THREE.PlaneGeometry(6, 6, 512, 512);
-    const material = new THREE.MeshStandardMaterial({
-      map: texture,
-      displacementMap: texture,
-      displacementScale: scale,
-      metalness: 0.1,
-      roughness: 0.75,
+    const dir = new THREE.DirectionalLight(0xffffff, 1.8);
+    dir.position.set(-5, 10, 5);
+    dir.castShadow = true;
+    scene.add(dir);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+
+    // Controls
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+
+    // Ground plane
+    const floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(20, 20),
+      new THREE.MeshStandardMaterial({
+        color: 0x1a1a1a,
+        roughness: 0.9,
+        metalness: 0.1,
+      })
+    );
+    floor.rotation.x = -Math.PI / 2;
+    floor.receiveShadow = true;
+    scene.add(floor);
+
+    // Depth map as displacement surface
+    const loader = new THREE.TextureLoader();
+    const depthTex = loader.load(depthUrl);
+
+    const surfaceGeo = new THREE.PlaneGeometry(10, 10, 512, 512);
+    const surfaceMat = new THREE.MeshStandardMaterial({
+      map: depthTex,
+      displacementMap: depthTex,
+      displacementScale: scale * 0.4,
+      metalness: 0.2,
+      roughness: 0.8,
       color: 0xffffff,
     });
 
-    const plane = new THREE.Mesh(geometry, material);
-    plane.rotation.x = -Math.PI / 2;
-    plane.position.y = 0;
-    plane.receiveShadow = true;
-    scene.add(plane);
+    const surface = new THREE.Mesh(surfaceGeo, surfaceMat);
+    surface.rotation.x = -Math.PI / 2;
+    surface.position.y = 0;
+    surface.receiveShadow = true;
+    scene.add(surface);
 
-    // ✅ Ground Plane
-    const groundGeo = new THREE.PlaneGeometry(50, 50);
-    const groundMat = new THREE.MeshPhongMaterial({
-      color: 0x222222,
-      shininess: 20,
+    // Semantic objects (Walls, Doors, etc.)
+    const COLORS = { Wall: 0xffffff, Door: 0xa0522d, Window: 0x87ceeb };
+
+    const sourceObjects = reasonedObjects.length
+      ? reasonedObjects
+      : mathData.objects.slice(0, 20);
+
+    sourceObjects.forEach((obj) => {
+      const height = obj.scaled_height_m || obj.size?.height || 2;
+      const color = COLORS[obj.label] || 0xffffff;
+      const box = new THREE.Mesh(
+        new THREE.BoxGeometry(
+          obj.size?.width || 0.4,
+          height,
+          obj.size?.depth || 0.4
+        ),
+        new THREE.MeshStandardMaterial({
+          color,
+          opacity: 0.85,
+          transparent: true,
+        })
+      );
+
+      const x = obj.position?.x ?? Math.random() * 8 - 4;
+      const z = obj.position?.z ?? Math.random() * 8 - 4;
+      box.position.set(x, height / 2, z);
+      scene.add(box);
     });
-    const ground = new THREE.Mesh(groundGeo, groundMat);
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.y = -0.1;
-    ground.receiveShadow = true;
-    scene.add(ground);
 
-    // ✅ Lights
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x404040, 1.0);
-    scene.add(hemiLight);
-
-    const dirLight = new THREE.DirectionalLight(0xffffff, 2);
-    dirLight.position.set(-5, 10, 5);
-    dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 2048;
-    dirLight.shadow.mapSize.height = 2048;
-    scene.add(dirLight);
-
-    // ✅ Ambient fill for contrast
-    const ambient = new THREE.AmbientLight(0xffffff, 0.4);
-    scene.add(ambient);
-
-    // ✅ Orbit Controls
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.maxPolarAngle = Math.PI / 2;
-    controls.target.set(0, 0, 0);
-
-    // ✅ Animate
+    // Animation loop
     const animate = () => {
       requestAnimationFrame(animate);
       controls.update();
@@ -147,56 +185,51 @@ export default function DepthViewer() {
     };
     animate();
 
-    // ✅ Resize Handling
+    // Resize handler
     const handleResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     };
+
     window.addEventListener("resize", handleResize);
 
-    // ✅ Cleanup
     return () => {
       window.removeEventListener("resize", handleResize);
       mount.removeChild(renderer.domElement);
       renderer.dispose();
-      geometry.dispose();
-      material.dispose();
-      texture.dispose();
+      surfaceGeo.dispose();
+      surfaceMat.dispose();
     };
-  }, [depthUrl, colorUrl, useColor, scale, error]);
+  }, [depthUrl, mathData, reasonedObjects, scale, error]);
 
-  // ---------- Loading / Error ----------
-  if (loading) {
+  // ───────────────────────────────
+  // 🎨 UI Rendering
+  // ───────────────────────────────
+  if (loading)
     return (
       <div className="center-screen">
-        <span>🌀 Generating Depth Map...</span>
+        <span>🌀 Loading Depth + Scene Reasoning...</span>
       </div>
     );
-  }
 
-  if (error) {
+  if (error)
     return (
       <div className="center-screen error">
         <span>❌ {error}</span>
       </div>
     );
-  }
 
-  // ---------- UI ----------
   return (
     <div className="viewer-container">
       <div ref={mountRef} className="viewer-canvas" />
 
-      {colorUrl && (
-        <button
-          onClick={() => setUseColor(!useColor)}
-          className="toggle-btn"
-        >
-          {useColor ? "🖤 View Grayscale" : "🎨 View Heatmap"}
-        </button>
-      )}
+      {/* Back Button */}
+      <button onClick={() => navigate(-1)} className="back-btn">
+        ← Back
+      </button>
 
+      {/* Height Scale Slider */}
       <div className="slider-container">
         <label>Height Scale: {scale.toFixed(1)}</label>
         <input

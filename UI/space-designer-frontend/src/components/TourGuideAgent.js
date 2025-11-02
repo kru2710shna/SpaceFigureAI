@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "../styles/TourGuideAgent.css";
 import bgVideo from "../assets/BG_Arch.mp4";
 import { useNavigate } from "react-router-dom";
-
+import MathematicalAgent from "./MathematicalAgent";
 
 const TourGuideAgent = () => {
   const [status, setStatus] = useState("Awaiting blueprint analysis...");
@@ -11,11 +11,12 @@ const TourGuideAgent = () => {
   const [result, setResult] = useState(null);
   const navigate = useNavigate();
 
+  // 🧠 Start analysis
   const handleStart = async () => {
     try {
       setError("");
       setLoading(true);
-      setStatus(" Processing architectural layout...");
+      setStatus("Processing architectural layout...");
 
       const res = await fetch("http://localhost:5050/tour-guide/run", {
         method: "POST",
@@ -40,91 +41,107 @@ const TourGuideAgent = () => {
   };
 
   return (
-    <div className="tourguide">
-      <video className="bg" src={bgVideo} autoPlay loop muted playsInline />
-      <div className="overlay">
+    <div className="tourguide-container">
+      {/* ====== Background Video ====== */}
+      <video className="bg-video" src={bgVideo} autoPlay loop muted playsInline />
+
+      {/* ====== Foreground Overlay ====== */}
+      <div className="content-overlay">
         <div className="panel fade-in">
           <h1 className="title">Tour Guide Agent</h1>
           <p className="subtitle">Architectural Layout Inspector</p>
           <p className="status">{status}</p>
 
+          {/* ====== Start Button ====== */}
           {!loading && !result && (
             <button className="btn" onClick={handleStart}>
               Start Analysis
             </button>
           )}
 
-          {loading && <div className="loader"> Scanning structure...</div>}
+          {/* ====== Loading / Error ====== */}
+          {loading && <div className="loader">Scanning structure...</div>}
           {error && <div className="error">{error}</div>}
 
+          {/* ====== Results ====== */}
           {Array.isArray(result) && result.length > 0 && (
-            <div className="results fade-in">
-              <h2> Inspection Summary</h2>
-              {result.map((r, i) => (
-                <div key={i} className="card">
-                  <div className="mode-tag">Mode: {r.mode}</div>
+            <>
+              <div className="results fade-in">
+                <h2>Inspection Summary</h2>
+                {result.map((r, i) => (
+                  <div key={i} className="card">
+                    <div className="mode-tag">Mode: {r.mode}</div>
 
-                  <div className="image-wrapper">
-                    <img
-                      src={r.annotated_image}
-                      alt="Detected blueprint"
-                      className="annotated-img"
-                      onError={(e) => (e.target.style.display = "none")}
-                    />
-                    <div className="image-glow" />
-                  </div>
-
-                  <div className="summary-grid">
-                    <div className="summary-block">
-                      <h4> Object Counts</h4>
-                      <ul className="object-list">
-                        {Object.entries(r.counts).map(([k, v]) => (
-                          <li key={k}>
-                            <span>{k}</span>
-                            <strong>{v}</strong>
-                          </li>
-                        ))}
-                      </ul>
+                    {/* Blueprint Image */}
+                    <div className="image-wrapper">
+                      <img
+                        src={r.annotated_image}
+                        alt="Detected blueprint"
+                        className="annotated-img"
+                        onError={(e) => (e.target.style.display = "none")}
+                      />
+                      <div className="image-glow" />
                     </div>
 
-                    <div className="summary-block">
-                      <h4> Output Files</h4>
-                      <div className="file-links">
-                        {r.json && (
-                          <a
-                            href={r.json}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="file-link"
-                          >
-                            Detections JSON
-                          </a>
-                        )}
-                        {r.csv && (
-                          <a
-                            href={r.csv}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="file-link"
-                          >
-                            Counts CSV
-                          </a>
-                        )}
+                    {/* Object and File Summary */}
+                    <div className="summary-grid">
+                      <div className="summary-block">
+                        <h4>Object Counts</h4>
+                        <ul className="object-list">
+                          {Object.entries(r.counts).map(([k, v]) => (
+                            <li key={k}>
+                              <span>{k}</span>
+                              <strong>{v}</strong>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
 
-                        {/* ✅ 3D Render Button (always visible when results are ready) */}
-                        {result && (
-                          <div className="render-btn-container fade-in">
-                            <button className="render-btn" onClick={() => navigate("/depth-viewer")}>
-                              🚀 3D Render
-                            </button>
-                          </div>
-                        )}
+                      <div className="summary-block">
+                        <h4>Output Files</h4>
+                        <div className="file-links">
+                          {r.json && (
+                            <a
+                              href={r.json}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="file-link"
+                            >
+                              Detections JSON
+                            </a>
+                          )}
+                          {r.csv && (
+                            <a
+                              href={r.csv}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="file-link"
+                            >
+                              Counts CSV
+                            </a>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+
+              {/* ====== Mathematical Agent Section ====== */}
+              <section className="math-section">
+                <MathematicalAgent />
+              </section>
+
+              {/* ====== 3D Render Button After Math Agent ====== */}
+              <div className="render-btn-container fade-in">
+                <button
+                  className="render-btn"
+                  onClick={() => navigate("/depth-viewer")}
+                >
+                  3D Render
+                </button>
+              </div>
+            </>
           )}
         </div>
       </div>

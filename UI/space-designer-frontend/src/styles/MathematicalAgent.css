@@ -1,0 +1,42 @@
+.math-agent {
+  background: #fff;
+  color: #000;
+  padding: 30px;
+  border-top: 4px solid #6c63ff;
+  text-align: center;
+  font-family: "Inter", sans-serif;
+  animation: fadeIn 0.8s ease;
+}
+
+.math-header h2 {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.math-table {
+  margin: 20px auto;
+  max-width: 800px;
+  border-collapse: collapse;
+}
+
+.math-table table {
+  width: 100%;
+  border: 1px solid #ddd;
+}
+
+.math-table th, .math-table td {
+  padding: 10px 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.math-summary {
+  margin-top: 25px;
+  background: #f6f6f6;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}

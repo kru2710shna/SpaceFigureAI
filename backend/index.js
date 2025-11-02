@@ -13,6 +13,9 @@ dotenv.config();
 const app = express();
 const PORT = 5050;
 import depthRoutes from "./routes/depthRoutes.js";
+import mathRoutes from "./routes/mathRoutes.js";
+import reasonRoutes from "./routes/reasonRoutes.js";
+
 
 // ---------- Middleware ----------
 app.use(cors({
@@ -124,6 +127,8 @@ app.use("/groq", groqRoutes);
 app.use("/tour-guide", tourGuideRoutes);
 app.use("/depth", depthRoutes);
 app.use("/agents/outputs", express.static(path.join(__dirname, "../agents/outputs")));
+app.use("/math", mathRoutes);
+app.use("/reason", reasonRoutes);
 
 
 // ---------- Root ----------

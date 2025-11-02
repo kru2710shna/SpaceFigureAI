@@ -233,13 +233,13 @@ except Exception as e:
         console.log("===============================\n");
 
         res.json({
-          message: "Tour Guide Agent completed successfully ✅",
+          message: "Tour Guide Agent completed successfully  ",
           results: parsed,
         });
       }
     );
   } catch (err) {
-    console.error("🔥 Route /tour-guide/run crashed:", err.message);
+    console.error(" Route /tour-guide/run crashed:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
