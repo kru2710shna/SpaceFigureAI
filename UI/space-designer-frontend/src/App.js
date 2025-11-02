@@ -5,6 +5,10 @@ import IntakeModal from "./components/IntakeModal";
 import TourGuideAgent from "./components/TourGuideAgent";
 import "./App.css";
 import bgVideo from "./assets/BG_Arch_2.mp4";
+import DepthViewer from "./components/DepthViewer"; 
+import Blueprint3DViewer from "./components/Blueprint3DViewer";
+
+
 
 function App() {
   return (
@@ -95,6 +99,12 @@ function App() {
 
         {/* ========== TOUR GUIDE AGENT PAGE ========== */}
         <Route path="/tour-guide" element={<TourGuideAgent />} />
+
+        <Route path="/depth-viewer" element={<DepthViewer />} />
+
+
+        <Route path="/blueprint-3d" element={<Blueprint3DViewer />} />
+        
       </Routes>
     </div>
   );

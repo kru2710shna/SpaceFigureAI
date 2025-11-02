@@ -121,7 +121,9 @@ except Exception as e:
     fs.writeFileSync(tempScriptPath, pyScript, "utf-8");
 
     const pythonCmd = process.platform === "win32" ? "python" : "python3";
-    const command = `${pythonCmd} "${tempScriptPath}"`;
+    const command = `${path.join(backendDir, "venv/bin/python3")} "${tempScriptPath}"`;
+
+
 
     console.log("🧭 Full image path:", fullInputPath);
     console.log("📦 Outputs dir:", outputsDir);

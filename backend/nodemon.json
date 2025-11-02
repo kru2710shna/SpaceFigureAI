@@ -1,0 +1,13 @@
+{
+  "watch": ["index.js", "routes", "models"],
+  "ignore": [
+    "venv",
+    "node_modules",
+    "uploads",
+    "../agents/outputs",
+    "../LLaVA",
+    "../data",
+    "../UI"
+  ],
+  "ext": "js,json"
+}

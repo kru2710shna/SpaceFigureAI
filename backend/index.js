@@ -12,6 +12,7 @@ import dotenv from "dotenv";
 dotenv.config();
 const app = express();
 const PORT = 5050;
+import depthRoutes from "./routes/depthRoutes.js";
 
 // ---------- Middleware ----------
 app.use(cors({
@@ -118,9 +119,11 @@ app.post("/validate-blueprint", async (req, res) => {
 
 // ---------- Static + Routes ----------
 app.use("/uploads", express.static(uploadDir));
-app.use("/agents/outputs", express.static(outputsDir)); // ✅ ADD THIS LINE - Critical for serving annotated images
+app.use("/agents/outputs", express.static(outputsDir));
 app.use("/groq", groqRoutes);
 app.use("/tour-guide", tourGuideRoutes);
+app.use("/depth", depthRoutes);
+app.use("/agents/outputs", express.static(path.join(__dirname, "../agents/outputs")));
 
 
 // ---------- Root ----------

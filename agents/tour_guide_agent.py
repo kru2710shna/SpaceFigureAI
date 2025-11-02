@@ -1,277 +1,210 @@
 """
-Unified detector for 2D architectural plans vs. 3D room photos.
-- If the input looks like a blueprint/floor plan (line-dense, low colorfulness), it runs the
-  custom 2D plan detector (Ultralytics YOLO) and exports: annotated image, JSON bboxes, CSV counts.
-- If the input looks like a real-world room photo, it runs a general object detector (e.g., yolov8n.pt)
-  and exports: JSON detections of target classes (bed/sofa/couch/window/door) and an annotated image.
+Tour Guide Agent – detects 2D blueprints vs 3D room photos
+and exports annotated image + JSON + CSV counts.
 
-You can force the mode with MODE_OVERRIDE ("blueprint"|"room"). Otherwise a lightweight heuristic
-auto-detects mode from the image content.
+Works with PyTorch >= 2.6 (safe-load) via temporary allowlist + legacy load.
 """
-from __future__ import annotations
 
-import os
-import json
+from __future__ import annotations
+import os, json
 from pathlib import Path
-from typing import List, Dict, Iterable, Tuple, Optional
+from typing import List, Dict, Optional, Iterable
 
 import cv2
 import numpy as np
 import pandas as pd
 from PIL import Image
+
+# --- Torch + YOLO (with PyTorch 2.6 safe-load handling) ---
+import torch
+import torch.serialization
+import torch.nn as nn
+import ultralytics.nn.tasks as tasks
 from ultralytics import YOLO
 
-# ---------------- CONFIG ----------------
-# Models
-BLUEPRINT_MODEL_PATH = "models/best.pt"      # your trained floorplan/blueprint model
-ROOM_MODEL_PATH = "models/yolov8n.pt"               # or yolov8m.pt for higher accuracy
+# Allow-list common classes used inside YOLO checkpoints (safe with official weights)
+try:
+    torch.serialization.add_safe_globals([
+        tasks.DetectionModel,
+        YOLO,
+        nn.Sequential,
+        nn.Module, nn.Conv2d, nn.BatchNorm2d, nn.SiLU, nn.ReLU, nn.LeakyReLU, nn.Sigmoid,
+        nn.MaxPool2d, nn.Upsample, nn.Linear, nn.Dropout, nn.Identity
+    ])
+except Exception:
+    pass
 
-# IO
-INPUT_PATH = r"C:\\Users\\keyar\\Documents\\Projects\\SpaceFigureAI\\backend\\uploads\image.png"  # file or folder
-OUTPUT_DIR = Path("outputs")
+def _load_yolo_weights(path: Path) -> YOLO:
+    """
+    Load YOLO weights under PyTorch 2.6+:
+    - temporarily force torch.load(weights_only=False)
+    - restore original torch.load afterwards
+    """
+    orig_load = torch.load
+    def patched(*args, **kwargs):
+        kwargs["weights_only"] = False
+        return orig_load(*args, **kwargs)
+    torch.load = patched
+    try:
+        return YOLO(str(path))
+    finally:
+        torch.load = orig_load
 
-# Confidence thresholds
+# ---------------- PATH CONFIG ----------------
+ROOT_DIR = Path(__file__).resolve().parents[1]        # .../SpaceFigureAI
+BACKEND_DIR = ROOT_DIR / "backend"
+
+BLUEPRINT_MODEL_PATH = BACKEND_DIR / "models" / "best.pt"     # your downloaded best.pt
+ROOM_MODEL_PATH      = BACKEND_DIR / "models" / "yolov8n.pt"  # generic detector
+FALLBACK_MODEL_PATH  = ROOM_MODEL_PATH                         # fallback if best.pt fails
+
+OUTPUT_DIR = ROOT_DIR / "agents" / "outputs"
+
 CONF_BLUEPRINT = 0.25
-CONF_ROOM = 0.25
+CONF_ROOM      = 0.25
 
-# Label filters
 SELECTED_LABELS_2D = [
-    'Column', 'Curtain Wall', 'Dimension', 'Door',
-    'Railing', 'Sliding Door', 'Stair Case', 'Wall', 'Window'
+    "Column","Curtain Wall","Dimension","Door",
+    "Railing","Sliding Door","Stair Case","Wall","Window"
 ]
-TARGET_CLASSES_ROOM = {"bed", "sofa", "couch", "window", "door"}
+TARGET_CLASSES_ROOM = {"bed","sofa","couch","window","door"}
+IMAGE_EXTS = (".jpg",".jpeg",".png",".bmp",".tif",".tiff")
 
-# Behavior
-IMAGE_EXTS = (".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff")
-MODE_OVERRIDE: Optional[str] = None  # set to "blueprint" or "room" to force a mode
-# ----------------------------------------
+# ---------------- UTILITIES ----------------
+def _safe_mkdir(p: Path): p.mkdir(parents=True, exist_ok=True)
 
-# --------------- Utils ------------------
-def _safe_mkdir(p: Path) -> None:
-    p.mkdir(parents=True, exist_ok=True)
+def _save_counts_csv(counts: Dict[str,int], path: Path) -> Path:
+    df = pd.DataFrame(list(counts.items()), columns=["Label","Count"])
+    _safe_mkdir(path.parent); df.to_csv(path, index=False); return path
 
+def _detections_to_json(model: YOLO, boxes: Iterable):
+    return [
+        {
+            "label": model.names[int(b.cls)],
+            "confidence": float(b.conf),
+            "bbox_xyxy": [float(v) for v in b.xyxy[0].tolist()],
+        } for b in boxes
+    ]
 
-def _save_counts_csv(counts: Dict[str, int], path: Path) -> Path:
-    df = pd.DataFrame(list(counts.items()), columns=["Label", "Count"])
-    _safe_mkdir(path.parent)
-    df.to_csv(path, index=False)
-    return path
-
-
-def _detections_to_json(model: YOLO, boxes: Iterable) -> List[dict]:
-    dets: List[dict] = []
-    for box in boxes:
-        dets.append({
-            "label": model.names[int(box.cls)],
-            "confidence": float(box.conf),
-            "bbox_xyxy": [float(v) for v in box.xyxy[0].tolist()],
-        })
-    return dets
-
-
-def _count_detected_objects(model: YOLO, boxes: Iterable) -> Dict[str, int]:
-    counts: Dict[str, int] = {}
-    for box in boxes:
-        label = model.names[int(box.cls)]
-        counts[label] = counts.get(label, 0) + 1
+def _count_detected_objects(model: YOLO, boxes: Iterable):
+    counts = {}
+    for b in boxes:
+        name = model.names[int(b.cls)]
+        counts[name] = counts.get(name, 0) + 1
     return counts
 
-
-# --------------- Heuristic mode detection ------------------
-# Lightweight blueprint vs. photo discriminator using colorfulness and edge density.
-# Returns "blueprint" or "room".
-
+# ---------------- MODE DETECTION ----------------
 def _image_colorfulness(bgr: np.ndarray) -> float:
-    # Hasler & Süsstrunk colorfulness metric
-    (B, G, R) = cv2.split(bgr)
-    rg = np.abs(R - G)
-    yb = np.abs(0.5 * (R + G) - B)
-    std_rg, std_yb = rg.std(), yb.std()
-    mean_rg, mean_yb = rg.mean(), yb.mean()
-    return np.sqrt(std_rg*2 + std_yb2) + 0.3 * np.sqrt(mean_rg2 + mean_yb*2)
-
+    (B,G,R) = cv2.split(bgr)
+    rg = np.abs(R-G); yb = np.abs(0.5*(R+G)-B)
+    return np.sqrt(rg.std()**2 + yb.std()**2) + 0.3*np.sqrt(rg.mean()**2 + yb.mean()**2)
 
 def _edge_density(gray: np.ndarray) -> float:
-    edges = cv2.Canny(gray, 100, 200)
-    return float(edges.mean() / 255.0)  # fraction of edge pixels
-
+    return float(cv2.Canny(gray,100,200).mean()/255.0)
 
 def guess_mode_from_image(image_path: Path) -> str:
     bgr = cv2.imread(str(image_path), cv2.IMREAD_COLOR)
-    if bgr is None:
-        # Fallback to room; also allows PIL-only formats
-        return "room"
+    if bgr is None: return "room"
     gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
+    cf, ed = _image_colorfulness(bgr), _edge_density(gray)
+    return "blueprint" if (cf < 15.0 and ed > 0.08) else "room"
 
-    cf = _image_colorfulness(bgr)
-    ed = _edge_density(gray)
-
-    # Heuristics:
-    # - Blueprints/floorplans tend to be low colorfulness, high edge density.
-    # - Room photos tend to be higher colorfulness, lower relative edge density.
-    # Thresholds tuned coarsely; adjust if needed for your data.
-    if cf < 15.0 and ed > 0.08:
-        return "blueprint"
-    return "room"
-
-
-# --------------- Processing: BLUEPRINT (2D) ------------------
-
+# ---------------- BLUEPRINT PIPELINE ----------------
 def process_blueprint_image(model: YOLO, image_path: Path, out_dir: Path) -> Dict:
-    image = Image.open(image_path)
-    results = model.predict(image, conf=CONF_BLUEPRINT)
-    r = results[0]
+    img = Image.open(image_path)
+    res = model.predict(img, conf=CONF_BLUEPRINT)[0]
+    boxes = [b for b in res.boxes if model.names[int(b.cls)] in SELECTED_LABELS_2D]
+    res.boxes = boxes
 
-    # filter labels
-    filtered = [b for b in r.boxes if model.names[int(b.cls)] in SELECTED_LABELS_2D]
-    r.boxes = filtered
-
-    # annotated image
-    annotated_bgr = r.plot()
     _safe_mkdir(out_dir)
-    out_img = out_dir / f"{image_path.stem}_detected_blueprint.jpg"
-    cv2.imwrite(str(out_img), annotated_bgr)
-
-    # JSON
-    det_json = _detections_to_json(model, filtered)
+    out_img  = out_dir / f"{image_path.stem}_detected_blueprint.jpg"
     out_json = out_dir / f"{image_path.stem}_detections_blueprint.json"
-    with open(out_json, "w", encoding="utf-8") as f:
-        json.dump(det_json, f, indent=2)
+    out_csv  = out_dir / f"{image_path.stem}_counts_blueprint.csv"
 
-    # CSV counts
-    counts = _count_detected_objects(model, filtered)
-    out_csv = out_dir / f"{image_path.stem}_counts_blueprint.csv"
-    _save_counts_csv(counts, out_csv)
+    cv2.imwrite(str(out_img), res.plot())
+    json.dump(_detections_to_json(model, boxes), open(out_json,"w"), indent=2)
+    _save_counts_csv(_count_detected_objects(model, boxes), out_csv)
 
     return {
-        "mode": "blueprint",
-        "annotated_image": str(out_img),
-        "json": str(out_json),
-        "csv": str(out_csv),
-        "counts": counts,
+        "mode":"blueprint",
+        "annotated_image":str(out_img),
+        "json":str(out_json),
+        "csv":str(out_csv),
+        "counts":_count_detected_objects(model, boxes),
     }
 
-
-# --------------- Processing: ROOM PHOTO (3D scene) -----------
-
+# ---------------- ROOM PIPELINE ----------------
 def process_room_photo(model: YOLO, image_path: Path, out_dir: Path) -> Dict:
-    # Ultralytics inference API supports passing a path directly
-    results = model(str(image_path))
+    res_list = model(str(image_path))
+    dets, filtered_all = [], []
+    _safe_mkdir(out_dir)
+    out_img  = out_dir / f"{image_path.stem}_detected_room.jpg"
+    out_json = out_dir / f"{image_path.stem}_detections_room.json"
+    out_csv  = out_dir / f"{image_path.stem}_counts_room.csv"
 
-    dets: List[dict] = []
-    annotated_img_path = out_dir / f"{image_path.stem}_detected_room.jpg"
+    for r in res_list:
+        keep=[]
+        for b in r.boxes:
+            n = model.names[int(b.cls)]
+            if n in TARGET_CLASSES_ROOM:
+                keep.append(b)
+                dets.append({
+                    "label":n,
+                    "confidence":float(b.conf),
+                    "bbox_xyxy":[float(x) for x in b.xyxy[0].tolist()]
+                })
+        r.boxes = keep
+        filtered_all.extend(keep)
+        cv2.imwrite(str(out_img), r.plot())
+
+    json.dump(dets, open(out_json,"w"), indent=2)
+    _save_counts_csv(_count_detected_objects(model, filtered_all), out_csv)
+
+    return {
+        "mode":"room",
+        "annotated_image":str(out_img),
+        "json":str(out_json),
+        "csv":str(out_csv),
+        "counts":_count_detected_objects(model, filtered_all),
+    }
+
+# ---------------- DISPATCHER ----------------
+def process_media(input_path: Path|str,
+                  output_dir: Path|str = OUTPUT_DIR,
+                  mode_override: Optional[str] = None):
+    in_path, out_dir = Path(input_path), Path(output_dir)
     _safe_mkdir(out_dir)
 
-    for r in results:
-        # collect and filter target classes
-        filtered_boxes = []
-        for box in r.boxes:
-            cls_name = model.names[int(box.cls)]
-            if cls_name in TARGET_CLASSES_ROOM:
-                dets.append({
-                    "label": cls_name,
-                    "confidence": float(box.conf),
-                    "bbox_xyxy": [float(x) for x in box.xyxy[0].tolist()],
-                })
-                filtered_boxes.append(box)
-        # draw only filtered boxes
-        r.boxes = filtered_boxes
-        annotated_bgr = r.plot()
-        cv2.imwrite(str(annotated_img_path), annotated_bgr)
+    # Load models with safe loader + fallback for blueprint
+    try:
+        blueprint_model = _load_yolo_weights(BLUEPRINT_MODEL_PATH)
+    except Exception as e:
+        print(f"⚠️ Failed to load blueprint model {BLUEPRINT_MODEL_PATH.name}: {e}")
+        print("➡️ Falling back to:", FALLBACK_MODEL_PATH.name)
+        blueprint_model = _load_yolo_weights(FALLBACK_MODEL_PATH)
 
-    out_json = out_dir / f"{image_path.stem}_detections_room.json"
-    with open(out_json, "w", encoding="utf-8") as f:
-        json.dump(dets, f, indent=2)
+    room_model = _load_yolo_weights(ROOM_MODEL_PATH)
 
-    # aggregate counts
-    counts: Dict[str, int] = {}
-    for d in dets:
-        counts[d["label"]] = counts.get(d["label"], 0) + 1
+    mode = (mode_override or guess_mode_from_image(in_path)).lower()
+    if mode not in {"blueprint","room"}:
+        raise ValueError("mode_override must be 'blueprint' or 'room'")
 
-    out_csv = out_dir / f"{image_path.stem}_counts_room.csv"
-    _save_counts_csv(counts, out_csv)
+    res  = process_blueprint_image(blueprint_model,in_path,out_dir) if mode=="blueprint" \
+           else process_room_photo(room_model,in_path,out_dir)
 
-    return {
-        "mode": "room",
-        "annotated_image": str(annotated_img_path),
-        "json": str(out_json),
-        "csv": str(out_csv),
-        "counts": counts,
-    }
+    print(f"✅ Processed {in_path} as {mode}")
+    return [res]
 
-
-# --------------- Dispatcher ------------------
-
-def process_media(input_path: Path | str,
-                  output_dir: Path | str = OUTPUT_DIR,
-                  mode_override: Optional[str] = MODE_OVERRIDE,
-                  blueprint_model_path: str = BLUEPRINT_MODEL_PATH,
-                  room_model_path: str = ROOM_MODEL_PATH) -> List[Dict]:
-    """
-    Process a file or a folder of images. Automatically detects whether each image
-    is a 2D blueprint/floor plan or a room photo unless mode_override is provided.
-
-    Returns a list of dicts with output paths and counts per image.
-    """
-    in_path = Path(input_path)
-    out_dir = Path(output_dir)
-
-    # Prepare models (lazy-load only the ones we need)
-    blueprint_model: Optional[YOLO] = None
-    room_model: Optional[YOLO] = None
-
-    def _ensure_blueprint_model() -> YOLO:
-        nonlocal blueprint_model
-        if blueprint_model is None:
-            blueprint_model = YOLO(blueprint_model_path)
-        return blueprint_model
-
-    def _ensure_room_model() -> YOLO:
-        nonlocal room_model
-        if room_model is None:
-            room_model = YOLO(room_model_path)
-        return room_model
-
-    results: List[Dict] = []
-
-    # Collect images to process
-    images: List[Path] = []
-    if in_path.is_file() and in_path.suffix.lower() in IMAGE_EXTS:
-        images = [in_path]
-    elif in_path.is_dir():
-        images = [p for p in in_path.iterdir() if p.suffix.lower() in IMAGE_EXTS]
-        if not images:
-            raise FileNotFoundError(f"No images with extensions {IMAGE_EXTS} found in {in_path}")
-    else:
-        raise FileNotFoundError("INPUT_PATH must be an image file or a folder of images.")
-
-    for img in images:
-        # Decide mode
-        mode = (mode_override or guess_mode_from_image(img)).lower()
-        if mode not in {"blueprint", "3droom"}:
-            raise ValueError("mode_override must be 'blueprint' or 'room'")
-
-        if mode == "blueprint":
-            model = _ensure_blueprint_model()
-            res = process_blueprint_image(model, img, out_dir)
-        else:
-            model = _ensure_room_model()
-            res = process_room_photo(model, img, out_dir)
-
-        print(f"\nProcessed: {img} (mode: {mode})")
-        print(f"  Annotated image: {res['annotated_image']}")
-        print(f" Detections JSON: {res['json']}")
-        print(f" Counts CSV:      {res['csv']}")
-        if res.get("counts"):
-            print("Summary:", ", ".join(f"{k}: {v}" for k, v in res["counts"].items()))
-        else:
-            print("No selected labels detected.")
-        results.append(res)
-
-    return results
-
-
-# --------------- CLI ------------------
+# ---------------- CLI ENTRY ----------------
 if __name__ == "__main__":
-
-    process_media(INPUT_PATH, OUTPUT_DIR, "blueprint")
+    uploads = BACKEND_DIR / "uploads"
+    imgs = sorted(
+        [p for p in uploads.iterdir() if p.suffix.lower() in IMAGE_EXTS],
+        key=lambda f:f.stat().st_mtime, reverse=True
+    )
+    if imgs:
+        latest = imgs[0]
+        print(f"🧠 Using latest upload: {latest}")
+        process_media(latest, OUTPUT_DIR, "blueprint")
+    else:
+        print("⚠️ No images found in uploads directory.")
