@@ -1,55 +1,76 @@
+// ====================================================
+// 🚀 SpaceFigureAI Backend Entry — Unified Workspace
+// ====================================================
 import express from "express";
 import cors from "cors";
 import multer from "multer";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
-import geminiRoutes from './routes/geminiRoutes.js';
-
-import * as ImageJS from "image-js";
-const { Image } = ImageJS;
-import tourGuideRoutes from "./routes/tourGuideRoutes.js";
 import dotenv from "dotenv";
-dotenv.config();
-const app = express();
-const PORT = 5050;
+import { fileURLToPath } from "url";
+import * as ImageJS from "image-js";
+const Image = ImageJS.Image;
+
+
+// ------------------- Routes -------------------
+import geminiRoutes from "./routes/geminiRoutes.js";
+import groqRoutes from "./routes/groqRoutes.js";
+import tourGuideRoutes from "./routes/tourGuideRoutes.js";
 import depthRoutes from "./routes/depthRoutes.js";
 import mathRoutes from "./routes/mathRoutes.js";
 import reasonRoutes from "./routes/reasonRoutes.js";
+import testOutputsRoutes from "./routes/testOutputs.js";
 
 
-// ---------- Middleware ----------
-app.use(cors({
-  origin: ["http://localhost:3000", "http://localhost:5173"], // React and Vite
-  credentials: true
-}));
+dotenv.config();
+const app = express();
+const PORT = process.env.PORT || 5050;
+
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "http://localhost:5173"],
+    methods: ["GET", "POST"],
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
-// ---------- Paths ----------
+// ----------------------------------------------------
+// 📁 Directory Setup
+// ----------------------------------------------------
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const uploadDir = path.join(__dirname, "uploads");
-const outputsDir = path.join(__dirname, "..", "agents", "outputs"); // ✅ Add this
+const workspaceDir = path.join(__dirname, "workspace");
 
-// ---------- Ensure Upload Directory ----------
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-  console.log(`📁 Created uploads directory at ${uploadDir}`);
+function ensureDir(p, label) {
+  if (!fs.existsSync(p)) {
+    fs.mkdirSync(p, { recursive: true });
+    if (label) console.log(`📁 Created ${label} at: ${p}`);
+  }
+}
+ensureDir(uploadDir, "uploads");
+ensureDir(workspaceDir, "workspace");
+
+// Export for other modules
+export function getWorkspacePath(uploadId) {
+  const dir = path.join(workspaceDir, uploadId);
+  ensureDir(dir);
+  return dir;
 }
 
-// ✅ Ensure Outputs Directory
-if (!fs.existsSync(outputsDir)) {
-  fs.mkdirSync(outputsDir, { recursive: true });
-  console.log(`📁 Created outputs directory at ${outputsDir}`);
-}
-
-// ---------- Logger ----------
+// ----------------------------------------------------
+// 🧠 Logger
+// ----------------------------------------------------
 app.use((req, _, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
 
-// ---------- Multer Setup ----------
+// ----------------------------------------------------
+// 📤 Upload
+// ----------------------------------------------------
 const storage = multer.diskStorage({
   destination: (_, __, cb) => cb(null, uploadDir),
   filename: (_, file, cb) => {
@@ -60,100 +81,92 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// ---------- Routes ----------
 app.post("/upload", upload.array("files"), (req, res) => {
-  if (!req.files?.length) {
+  if (!req.files?.length)
     return res.status(400).json({ message: "No files uploaded." });
-  }
 
-  res.json({
-    message: "Files uploaded successfully",
-    uploaded: req.files.map((f) => ({
+  const uploaded = req.files.map((f) => {
+    const uploadId = f.filename.split("-")[0];
+    const ws = getWorkspacePath(uploadId);
+    ["detections", "depth", "math", "reasoning", "preview"].forEach((d) =>
+      ensureDir(path.join(ws, d))
+    );
+    return {
+      uploadId,
       filename: f.filename,
-      path: `/uploads/${f.filename}`,
-    })),
+      input_url: `/uploads/${f.filename}`,
+      workspace: ws,
+    };
   });
+  res.json({ message: "✅ Uploaded successfully", uploaded });
 });
 
-// ---------- Blueprint Validation (Edge-based) ----------
-
+// ----------------------------------------------------
+// 🧩 Blueprint Validation
+// ----------------------------------------------------
 app.post("/validate-blueprint", async (req, res) => {
   try {
     const { image_url } = req.body;
-    if (!image_url)
-      return res.status(400).json({ error: "Missing image_url" });
+    if (!image_url) return res.status(400).json({ error: "Missing image_url" });
 
-    // Load the image
-    const response = await fetch(image_url);
-    const buffer = Buffer.from(await response.arrayBuffer());
-    const img = await Image.load(buffer);
+    const r = await fetch(image_url);
+    const buf = Buffer.from(await r.arrayBuffer());
+    const img = await Image.fromBuffer(buf);
 
-    // Convert to grayscale + edge detection
     const gray = img.grey();
     const edges = gray.sobelFilter();
-
-    // Compute edge density and average brightness
-    const pixels = edges.data;
-    const edgeCount = pixels.filter((v) => v > 50).length; // strong edges
-    const edgeDensity = edgeCount / pixels.length;
+    const edgeCount = edges.data.filter((v) => v > 50).length;
+    const edgeDensity = edgeCount / edges.data.length;
     const brightness = gray.mean / 255;
 
-    // Adaptive thresholding
-    const isBlueprint =
-      edgeDensity > 0.002 || (edgeDensity > 0.001 && brightness > 0.4);
-
+    const isBlueprint = edgeDensity > 0.002 || (edgeDensity > 0.001 && brightness > 0.4);
     const reason = isBlueprint
-      ? `Detected structured wall edges (edgeDensity=${edgeDensity.toFixed(4)}).`
-      : `Low edge structure (edgeDensity=${edgeDensity.toFixed(4)}).`;
+      ? `Detected structured edges (density=${edgeDensity.toFixed(4)}).`
+      : `Low structural edge density (density=${edgeDensity.toFixed(4)}).`;
 
-    console.log(
-      `🧩 Edge Density: ${edgeDensity.toFixed(4)} (${isBlueprint ? "✅ Blueprint" : "⚠️ Not Blueprint"})`
-    );
-
+    console.log(`🧩 Blueprint → ${isBlueprint ? "✅ Valid" : "⚠️ Weak"} | ${reason}`);
     res.json({ is_blueprint: isBlueprint, reason });
   } catch (err) {
     console.error("❌ Blueprint validation failed:", err.message);
     res.json({
-      is_blueprint: true, // fallback to Groq
-      reason: "Local validator failed, deferring to Groq reasoning.",
+      is_blueprint: true,
+      reason: "Local validator failed, deferring to AI reasoning.",
     });
   }
 });
 
-
-// ---------- Static + Routes ----------
+// ----------------------------------------------------
+// 🌐 Static Routes
+// ----------------------------------------------------
 app.use("/uploads", express.static(uploadDir));
-app.use("/agents/outputs", express.static(outputsDir));
-   app.use('/gemini', geminiRoutes);
+app.use("/workspace", express.static(workspaceDir));
+const agentsOutputsDir = path.join(__dirname, "../agents/outputs");
+if (fs.existsSync(agentsOutputsDir)) {
+  app.use("/agents/outputs", express.static(agentsOutputsDir));
+  console.log(`📂 Serving Agents Outputs: ${agentsOutputsDir}`);
+} else {
+  console.warn("⚠️  agents/outputs directory not found — static serving disabled");
+}
+
+// ----------------------------------------------------
+// 🔗 Routes
+// ----------------------------------------------------
+app.use("/gemini", geminiRoutes);
+app.use("/groq", groqRoutes);
 app.use("/tour-guide", tourGuideRoutes);
 app.use("/depth", depthRoutes);
-app.use("/agents/outputs", express.static(path.join(__dirname, "../agents/outputs")));
 app.use("/math", mathRoutes);
 app.use("/reason", reasonRoutes);
+app.use("/test-outputs", testOutputsRoutes);
 
 
-// ---------- Root ----------
-app.get("/", (_, res) => res.send("Backend is running ✅"));
-
-// ---------- Test Outputs Directory ----------
-app.get("/test-outputs", (req, res) => {
-  const files = fs.readdirSync(outputsDir);
-  res.json({
-    outputsDir,
-    files,
-    sampleUrl: files.length > 0 
-      ? `http://localhost:${PORT}/agents/outputs/${files[0]}`
-      : "No files yet"
-  });
-});
-
-// ---------- Start Server ----------
+app.get("/", (_, res) => res.send("✅ SpaceFigureAI Backend Running"));
 app.listen(PORT, () => {
   console.clear();
   console.log("=========================================");
-  console.log(`🚀 Backend Server is running`);
+  console.log("🚀 SpaceFigureAI Backend Server Running");
   console.log(`🌐 Port: ${PORT}`);
-  console.log(`📂 Upload Directory: ${uploadDir}`);
-  console.log(`📂 Outputs Directory: ${outputsDir}`); // ✅ Add this log
+  console.log(`📂 Uploads: ${uploadDir}`);
+  console.log(`📂 Workspace: ${workspaceDir}`);
   console.log("=========================================");
 });

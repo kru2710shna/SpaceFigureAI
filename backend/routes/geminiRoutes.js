@@ -1,17 +1,24 @@
+// ====================================================
+// 🧠 Gemini Routes — Clean Version
+// Author: Krushna Thakkar
+// ====================================================
+
 import express from "express";
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+
 dotenv.config();
 
+const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const router = express.Router();
 
 // ====================================================
-// ✅ Constants
+// ✅ Constants & Directories
 // ====================================================
+
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models";
 const MODELS = {
   confirm: "gemini-2.5-flash",
@@ -20,128 +27,132 @@ const MODELS = {
 };
 
 const answersDir = path.join(__dirname, "..", "answers");
-if (!fs.existsSync(answersDir)) {
-  fs.mkdirSync(answersDir, { recursive: true });
+if (!fs.existsSync(answersDir)) fs.mkdirSync(answersDir, { recursive: true });
+
+// ====================================================
+// 🔁 Helper: Exponential Retry Wrapper
+// ====================================================
+async function withRetry(fn, retries = 3, delay = 3000) {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      if (err.message.includes("429") && attempt < retries - 1) {
+        const wait = delay * (attempt + 1);
+        console.warn(`⚠️ Gemini rate limit hit. Retrying in ${wait / 1000}s...`);
+        await new Promise((res) => setTimeout(res, wait));
+      } else {
+        throw err;
+      }
+    }
+  }
 }
 
 // ====================================================
-// ✅ Generic helper for Gemini API
+// ⚙️ Generic Gemini Text API
 // ====================================================
 async function callGemini(prompt, modelKey = "analyze", temperature = 0.4, maxTokens = 800) {
   const model = MODELS[modelKey] || MODELS.analyze;
   const apiKey = process.env.GEMINI_API_KEY;
 
   const body = {
-    contents: [{
-      parts: [{ text: prompt }]
-    }],
+    contents: [{ parts: [{ text: prompt }] }],
     generationConfig: {
       temperature,
       maxOutputTokens: maxTokens,
       topP: 0.95,
       topK: 40,
-    }
+    },
   };
 
-  const res = await fetch(`${GEMINI_API_URL}/${model}:generateContent?key=${apiKey}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
+  return withRetry(async () => {
+    const res = await fetch(`${GEMINI_API_URL}/${model}:generateContent?key=${apiKey}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) throw new Error(`Gemini API error (${model}): ${res.status} — ${await res.text()}`);
+    return res.json();
   });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Gemini API error (${model}): ${res.status} — ${text}`);
-  }
-
-  return res.json();
 }
 
 // ====================================================
-// ✅ Helper for Gemini Vision API (with image)
+// 🖼️ Gemini Vision API — Image-based Analysis
 // ====================================================
 async function callGeminiVision(prompt, imageUrl, modelKey = "analyze") {
   const model = MODELS[modelKey] || MODELS.analyze;
   const apiKey = process.env.GEMINI_API_KEY;
 
-  // Fetch image and convert to base64
   const imageResponse = await fetch(imageUrl);
-  const imageBuffer = await imageResponse.arrayBuffer();
-  const base64Image = Buffer.from(imageBuffer).toString('base64');
-  
-  // Determine MIME type
-  const mimeType = imageResponse.headers.get('content-type') || 'image/jpeg';
+  const buffer = await imageResponse.arrayBuffer();
+  const base64Image = Buffer.from(buffer).toString("base64");
+  const mimeType = imageResponse.headers.get("content-type") || "image/jpeg";
 
   const body = {
-    contents: [{
-      parts: [
-        { text: prompt },
-        {
-          inline_data: {
-            mime_type: mimeType,
-            data: base64Image
-          }
-        }
-      ]
-    }],
+    contents: [
+      {
+        parts: [
+          { text: prompt },
+          { inline_data: { mime_type: mimeType, data: base64Image } },
+        ],
+      },
+    ],
     generationConfig: {
       temperature: 0.4,
       maxOutputTokens: 800,
       topP: 0.95,
       topK: 40,
-    }
+    },
   };
 
-  const res = await fetch(`${GEMINI_API_URL}/${model}:generateContent?key=${apiKey}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
+  return withRetry(async () => {
+    const res = await fetch(`${GEMINI_API_URL}/${model}:generateContent?key=${apiKey}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok)
+      throw new Error(`Gemini Vision API error (${model}): ${res.status} — ${await res.text()}`);
+    return res.json();
   });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Gemini Vision API error (${model}): ${res.status} — ${text}`);
-  }
-
-  return res.json();
 }
 
 // ====================================================
-// 🔹 /gemini/confirm → Hybrid visual + semantic validation
+// 🔹 /gemini/confirm — Hybrid Validation
 // ====================================================
 router.post("/confirm", async (req, res) => {
   try {
     const { image_url } = req.body;
     if (!image_url) return res.status(400).json({ error: "Missing image_url" });
 
-    // 1️⃣ Local lightweight visual validator (optional)
+    // Step 1: Local edge-based visual validator
     let visualConfidence = false;
     let visualReason = "Local validator unavailable.";
-
     try {
       const visual = await fetch("http://127.0.0.1:5050/validate-blueprint", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ image_url }),
       });
-      const visualResult = await visual.json();
-      visualConfidence = visualResult?.is_blueprint || false;
-      visualReason = visualResult?.reason || "No reason provided.";
-      console.log(`🧠 Local visual check → ${visualConfidence ? "✅ Blueprint" : "⚠️ Possibly Non-Blueprint"} (${visualReason})`);
-    } catch (e) {
-      console.warn("⚠️ Local validator not running, skipping visual check.");
+      const result = await visual.json();
+      visualConfidence = result?.is_blueprint || false;
+      visualReason = result?.reason || "No reason provided.";
+      console.log(
+        `🧠 Local visual check → ${visualConfidence ? "✅ Blueprint" : "⚠️ Non-Blueprint"} (${visualReason})`
+      );
+    } catch {
+      console.warn("⚠️ Local validator unreachable, skipping.");
     }
 
-    // 2️⃣ Semantic Gemini confirmation with vision — always runs
-    const prompt = `You are an expert architectural AI. Determine if this image represents a valid blueprint, floor plan, or layout diagram suitable for spatial reasoning.
+    // Step 2: Semantic Gemini validation
+    const prompt = `
+You are an expert architectural AI. Determine if this image represents a valid blueprint, floor plan, or layout diagram.
 
 Local detection result: ${visualConfidence}
 
-Analyze this image and respond strictly in JSON format:
+Respond strictly in JSON format:
 {
   "is_blueprint": true or false,
   "reason": "short explanation"
@@ -158,7 +169,6 @@ Analyze this image and respond strictly in JSON format:
       parsed = { is_blueprint: true, reason: "Fallback: visually confirmed layout." };
     }
 
-    // ✅ Merge local and semantic results
     const confirmed = parsed.is_blueprint || visualConfidence;
     const reason = parsed.reason || visualReason;
 
@@ -170,34 +180,32 @@ Analyze this image and respond strictly in JSON format:
 });
 
 // ====================================================
-// 🔹 /gemini/questions → Sequential design Q&A
+// 🔹 /gemini/questions — Step-by-Step Design Q&A
 // ====================================================
 router.post("/questions", async (req, res) => {
   try {
     const { step, prevAnswers } = req.body;
-
     const questions = [
       "What interior style do you prefer? (Modern, Classic, Gen-Z, Minimal, Rustic)",
       "What is your approximate budget range? (<$5k, $5k–$10k, $10k–$20k, >$20k)",
-      "What is the room's main function and desired lighting preference? (Cozy, bright, warm, natural)",
+      "What is the room's main function and lighting preference? (Cozy, bright, warm, natural)",
     ];
 
-    if (step >= questions.length) {
+    if (step >= questions.length)
       return res.json({ done: true, message: "All questions completed." });
-    }
 
-    const prompt = `You are a concise and friendly design assistant. Ask one clear question at a time.
-
+    const prompt = `
+You are a concise, friendly design assistant.
 Previous answers: ${JSON.stringify(prevAnswers || {})}
 
-Now ask the next question only: ${questions[step]}
-
-Provide a friendly, conversational version of this question.`;
+Now ask only the next question conversationally:
+${questions[step]}`;
 
     const data = await callGemini(prompt, "questions");
-    const response = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || questions[step];
+    const question =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || questions[step];
 
-    res.json({ question: response, step, done: false });
+    res.json({ question, step, done: false });
   } catch (err) {
     console.error("❌ /gemini/questions error:", err.message);
     res.status(500).json({ error: "Question generation failed." });
@@ -205,26 +213,22 @@ Provide a friendly, conversational version of this question.`;
 });
 
 // ====================================================
-// 🔹 /gemini/analyze → Caption, Reasoning, Suggestions
+// 🔹 /gemini/analyze — Blueprint Caption + Suggestions
 // ====================================================
 router.post("/analyze", async (req, res) => {
   try {
     const { image_url, intake } = req.body;
     if (!image_url) return res.status(400).json({ error: "Missing image_url" });
 
-    const prompt = `You are a senior interior designer AI analyzing a blueprint or floor plan.
+    const prompt = `
+You are a senior interior designer AI analyzing a blueprint or floor plan.
 
 User Preferences: ${JSON.stringify(intake, null, 2)}
 
-Analyze the blueprint image and provide:
-1. A short summary caption
-2. Detailed reasoning about the layout and design logic
-3. Three actionable improvement ideas
-
-Return only valid JSON with these exact fields:
+Analyze and return JSON:
 {
   "caption": "short summary",
-  "reasoning": "explanation of layout and logic",
+  "reasoning": "layout and design explanation",
   "suggestion": "3 actionable improvement ideas"
 }`;
 
@@ -238,20 +242,20 @@ Return only valid JSON with these exact fields:
     } catch {
       parsed = {
         caption: "Unable to parse caption.",
-        reasoning: "Raw model output: " + raw,
+        reasoning: "Raw output: " + raw,
         suggestion: "No structured suggestions found.",
       };
     }
 
-    // 💡 Auto-generate suggestions if missing
+    // Generate fallback suggestions if missing
     if (!parsed.suggestion || parsed.suggestion.length < 10) {
+      const suggestionPrompt = `
+You are a senior designer. Based on this reasoning:
+${parsed.reasoning}
+
+Generate 3 concise actionable design improvement ideas.`;
+
       try {
-        const suggestionPrompt = `You are a senior designer. Based on the blueprint analysis:
-
-Reasoning: ${parsed.reasoning}
-
-Generate 3 concise, actionable design improvement suggestions for this space.`;
-        
         const suggestionData = await callGemini(suggestionPrompt, "questions");
         parsed.suggestion =
           suggestionData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
@@ -269,18 +273,13 @@ Generate 3 concise, actionable design improvement suggestions for this space.`;
 });
 
 // ====================================================
-// 🔹 /gemini/status → Health check
+// 🔹 /gemini/status — Health Check
 // ====================================================
-router.get("/status", async (_, res) => {
-  try {
-    res.json({
-      gemini: process.env.GEMINI_API_KEY
-        ? "✅ Gemini API Key Loaded"
-        : "⚠️ Missing GEMINI_API_KEY",
-    });
-  } catch {
-    res.status(500).json({ error: "Gemini status check failed." });
-  }
+router.get("/status", (_, res) => {
+  const loaded = !!process.env.GEMINI_API_KEY;
+  res.json({
+    gemini: loaded ? "✅ Gemini API Key Loaded" : "⚠️ Missing GEMINI_API_KEY",
+  });
 });
 
 export default router;

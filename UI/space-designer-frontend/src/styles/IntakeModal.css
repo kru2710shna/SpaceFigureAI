@@ -205,4 +205,147 @@
   transform: translateY(-2px);
 }
 
+.intake-modal-wrapper {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 60px;
+  background-color: rgba(0, 0, 0, 0.8);
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.intake-panel {
+  background: #111;
+  color: #fff;
+  border-radius: 10px;
+  width: 700px;
+  max-width: 95%;
+  padding: 24px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.intake-header {
+  border-bottom: 1px solid #333;
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+}
+
+.status-line {
+  font-size: 14px;
+  color: #bbb;
+}
+
+.analysis-img {
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  border: 1px solid #333;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.loading-text {
+  color: #ccc;
+  text-align: center;
+  margin: 16px 0;
+}
+
+.error-text {
+  color: #ff5555;
+  background: #330000;
+  padding: 10px;
+  border-radius: 6px;
+  margin: 10px 0;
+  text-align: center;
+}
+
+.question-block {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.question-title {
+  margin-bottom: 10px;
+  color: #e0e0e0;
+}
+
+.answer-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #555;
+  background: #222;
+  color: #fff;
+  margin-bottom: 14px;
+  font-size: 15px;
+}
+
+.button-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.skip-btn,
+.submit-btn,
+.next-step-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.skip-btn {
+  background: #444;
+  margin-right: 10px;
+}
+
+.submit-btn {
+  background: #7b5bff;
+}
+
+.next-step-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.next-step-btn {
+  width: 100%;
+  background: #6a4df4;
+}
+
+.info-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.info-card h4 {
+  color: #bcbcbc;
+  margin-bottom: 6px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
 

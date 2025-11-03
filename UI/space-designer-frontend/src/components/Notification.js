@@ -2,16 +2,14 @@ import React from "react";
 import "../styles/Notification.css";
 
 function Notification({ imageSrc, message, onRetry, onClose }) {
-  const validSrc = imageSrc
-    ? imageSrc.startsWith("http")
-      ? imageSrc
-      : `http://localhost:5050${imageSrc}`
-    : null;
+  const validSrc = imageSrc?.startsWith("http")
+    ? imageSrc
+    : `http://localhost:5050${imageSrc}`;
 
   return (
     <div className="notification">
       <div className="notif-header">
-        <h4>{message || "Upload complete"}</h4>
+        <h4>{message || "Upload Complete"}</h4>
         <button className="close-btn" onClick={onClose}>×</button>
       </div>
 

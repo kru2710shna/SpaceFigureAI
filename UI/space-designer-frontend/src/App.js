@@ -102,7 +102,6 @@ function App() {
 
         <Route path="/depth-viewer" element={<DepthViewer />} />
 
-
         <Route path="/blueprint-3d" element={<Blueprint3DViewer />} />
         
       </Routes>

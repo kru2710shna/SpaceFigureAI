@@ -4,16 +4,14 @@ import Notification from "./Notification";
 import "../styles/upload.css";
 import IntakeModal from "./IntakeModal";
 
-
-
 function UploadForm() {
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [uploadedImg, setUploadedImg] = useState(null);
+  const [uploadId, setUploadId] = useState(null);
   const [showNotif, setShowNotif] = useState(false);
   const [showIntake, setShowIntake] = useState(false);
   const [message, setMessage] = useState("");
-  const [setAnalysis] = useState(null);
 
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
@@ -29,29 +27,23 @@ function UploadForm() {
     files.forEach((file) => formData.append("files", file));
 
     try {
-      console.log("Uploading...");
       setUploading(true);
-
       const response = await axios.post("http://127.0.0.1:5050/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      console.log("Response:", response.data);
+      console.log("📤 Upload response:", response.data);
+      const uploaded = response.data.uploaded?.[0];
+      if (!uploaded) throw new Error("Upload failed.");
 
-      if (response.data.uploaded?.length > 0) {
-        const uploadedPath = response.data.uploaded[0].path;
-        setUploadedImg(`http://localhost:5050${uploadedPath}`);
-        setMessage("Image uploaded successfully.");
-        setShowNotif(true);
-        setShowIntake(true); // open intake modal after upload
-
-        if (response.data.analysis) {
-          setAnalysis(response.data.analysis);
-          console.log("Model says:", response.data.analysis.caption);
-        }
-      }
+      const imgUrl = `http://localhost:5050${uploaded.input_url}`;
+      setUploadedImg(imgUrl);
+      setUploadId(uploaded.uploadId);
+      setMessage("Image uploaded successfully ✅");
+      setShowNotif(true);
+      setShowIntake(true);
     } catch (err) {
-      console.error(err);
+      console.error("❌ Upload error:", err);
       setMessage("Upload failed. Please try again.");
       setShowNotif(true);
     } finally {
@@ -103,8 +95,7 @@ function UploadForm() {
         />
       )}
 
-
-      {showIntake && <IntakeModal imageSrc={uploadedImg} />}
+      {showIntake && <IntakeModal imageSrc={uploadedImg} uploadId={uploadId} />}
     </>
   );
 }

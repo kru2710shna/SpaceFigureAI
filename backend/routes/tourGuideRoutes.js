@@ -34,20 +34,20 @@ const getLatestUploadedFile = () => {
 // 🐍 Helper: Get correct Python executable path
 const getPythonCommand = () => {
   const isWindows = process.platform === "win32";
-  
+
   // Try virtual environment first
-  const venvPaths = isWindows 
+  const venvPaths = isWindows
     ? [
-        path.join(backendDir, "venv", "Scripts", "python.exe"),
-        path.join(baseDir, "venv", "Scripts", "python.exe"),
-      ]
+      path.join(backendDir, "venv", "Scripts", "python.exe"),
+      path.join(baseDir, "venv", "Scripts", "python.exe"),
+    ]
     : [
-        path.join(backendDir, "venv", "bin", "python3"),
-        path.join(backendDir, "venv", "bin", "python"),
-        path.join(baseDir, "venv", "bin", "python3"),
-        path.join(baseDir, "venv", "bin", "python"),
-      ];
-  
+      path.join(backendDir, "venv", "bin", "python3"),
+      path.join(backendDir, "venv", "bin", "python"),
+      path.join(baseDir, "venv", "bin", "python3"),
+      path.join(baseDir, "venv", "bin", "python"),
+    ];
+
   // Check if venv exists
   for (const venvPath of venvPaths) {
     if (fs.existsSync(venvPath)) {
@@ -55,7 +55,7 @@ const getPythonCommand = () => {
       return `"${venvPath}"`;
     }
   }
-  
+
   // Fallback to system Python
   console.warn("⚠️ Virtual environment not found, using system Python");
   return isWindows ? "python" : "python3";
@@ -74,7 +74,7 @@ router.post("/run", async (req, res) => {
     if (!image_path) {
       const latest = getLatestUploadedFile();
       if (!latest) {
-        console.error("❌ No uploads found");
+        console.error("❌- 1 No uploads found");
         return res.status(400).json({ error: "No uploaded images found." });
       }
       image_path = latest;
@@ -89,7 +89,7 @@ router.post("/run", async (req, res) => {
 
     const fullInputPath = path.resolve(image_path);
     if (!fs.existsSync(fullInputPath)) {
-      console.error("❌ Image not found:", fullInputPath);
+      console.error("❌ -2 Image not found:", fullInputPath);
       return res.status(404).json({ error: `Image not found: ${fullInputPath}` });
     }
 
@@ -186,8 +186,8 @@ except Exception as e:
         }
 
         if (error) {
-          console.error("❌ Execution Error:", error.message);
-          
+          console.error("❌ -3 Execution Error:", error.message);
+
           // Try to parse error from stderr
           let errorDetails = stderr || error.message;
           try {
@@ -214,7 +214,7 @@ except Exception as e:
               details: stderr || "No output generated",
             });
           }
-          
+
           // Extract JSON from output (in case there are YOLO logs before it)
           const jsonMatch = trimmedOutput.match(/\[{.*}\]/s);
           if (!jsonMatch) {
@@ -225,14 +225,14 @@ except Exception as e:
               raw_output: trimmedOutput,
             });
           }
-          
+
           parsed = JSON.parse(jsonMatch[0]);
-          
+
           // Convert file paths to localhost URLs
           if (Array.isArray(parsed)) {
             parsed = parsed.map(item => ({
               ...item,
-              annotated_image: item.annotated_image 
+              annotated_image: item.annotated_image
                 ? `http://localhost:5050/agents/outputs/${path.basename(item.annotated_image)}`
                 : null,
               json: item.json
@@ -243,7 +243,7 @@ except Exception as e:
                 : null,
             }));
           }
-          
+
           console.log("✅ Successfully parsed and converted paths:");
           console.log(JSON.stringify(parsed, null, 2));
         } catch (e) {
@@ -269,7 +269,7 @@ except Exception as e:
       }
     );
   } catch (err) {
-    console.error("❌ Route /tour-guide/run crashed:", err.message);
+    console.error("❌ -4 Route /tour-guide/run crashed:", err.message);
     res.status(500).json({ error: err.message });
   }
 });

@@ -7,21 +7,31 @@ export default function MathematicalAgent() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    const endpoint = "http://127.0.0.1:5050/math/run";
+    console.log("🧩 Fetching math results from:", endpoint);
+
     async function fetchMath() {
       try {
         setLoading(true);
-        const res = await fetch("http://localhost:5050/math/run");
-        if (!res.ok) throw new Error("Failed to connect to backend");
+        const res = await fetch(endpoint);
+
+        // Better error visibility
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`Backend ${res.status}: ${text}`);
+        }
 
         const result = await res.json();
+        console.log("✅ Math Agent Response:", result);
         setData(result);
       } catch (err) {
         console.error("❌ Math Agent failed:", err);
-        setError(err.message);
+        setError(err.message || "Failed to fetch data from backend");
       } finally {
         setLoading(false);
       }
     }
+
     fetchMath();
   }, []);
 
@@ -37,6 +47,13 @@ export default function MathematicalAgent() {
     return (
       <div className="math-agent error">
         <p>❌ {error}</p>
+      </div>
+    );
+
+  if (!data || !data.objects)
+    return (
+      <div className="math-agent">
+        <p>⚠️ No mathematical data returned.</p>
       </div>
     );
 

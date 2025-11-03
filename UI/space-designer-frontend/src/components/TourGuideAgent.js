@@ -18,7 +18,7 @@ const TourGuideAgent = () => {
       setLoading(true);
       setStatus("Processing architectural layout...");
 
-      const res = await fetch("http://localhost:5050/tour-guide/run", {
+      const res = await fetch("http://127.0.0.1:5050/tour-guide/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mode: "blueprint" }),
@@ -32,9 +32,9 @@ const TourGuideAgent = () => {
       setResult(data.results);
       setStatus("✅ Inspection Complete — Ready for Review");
     } catch (err) {
-      console.error("❌ Error:", err);
+      console.error("❌ -7 Error:", err);
       setError(err.message || "Agent failure — try again.");
-      setStatus("❌ Error During Inspection");
+      setStatus("❌ -8 Error During Inspection");
     } finally {
       setLoading(false);
     }
@@ -136,7 +136,8 @@ const TourGuideAgent = () => {
               <div className="render-btn-container fade-in">
                 <button
                   className="render-btn"
-                  onClick={() => navigate("/depth-viewer")}
+                  onClick={() => navigate("/depth-viewer", { state: { imageSrc: result[0]?.annotated_image } })}
+
                 >
                   3D Render
                 </button>

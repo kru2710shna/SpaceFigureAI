@@ -6,230 +6,181 @@ import { useNavigate } from "react-router-dom";
 
 export default function DepthViewer() {
   const mountRef = useRef(null);
-  const navigate = useNavigate();
-
-  // ───────────────────────────────
-  // ⚙️  State Management
-  // ───────────────────────────────
+  const [depthUrl, setDepthUrl] = useState("");
+  const [layout, setLayout] = useState([]);
+  const [scale, setScale] = useState(1.5);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [depthUrl, setDepthUrl] = useState("");
-  const [mathData, setMathData] = useState(null);
-  const [scale, setScale] = useState(1.5);
-  const [reasonedObjects, setReasonedObjects] = useState([]);
+  const navigate = useNavigate();
+  const [uploadId, setUploadId] = useState("");
 
-  // ───────────────────────────────
-  // 🔹 Fetch Pipeline (Depth + Math + Reasoning)
-  // ───────────────────────────────
+  // 🔹 Fetch latest blueprint JSON + image and initialize rendering pipeline
   useEffect(() => {
-    const init = async () => {
+    async function init() {
       try {
         setLoading(true);
         setError("");
 
-        // 1️⃣ Get latest uploaded image
-        const res = await fetch("http://localhost:5050/test-outputs");
-        const data = await res.json();
+        // 1️⃣ Get latest detection JSON (blueprint)
+        const uploadList = await fetch("http://localhost:5050/test-outputs").then((r) =>
+          r.json()
+        );
+        const latestJson = uploadList.files?.find((f) =>
+          f.endsWith("_detections_blueprint.json")
+        );
+        if (!latestJson) throw new Error("No detection JSON found.");
 
-        const latest = data.files
-          ?.filter((f) => /\.(jpeg|jpg|png)$/i.test(f))
-          .sort((a, b) => b.localeCompare(a))[0];
+        // Derive corresponding annotated image
+        const latestImg = latestJson
+          .replace("_detections_blueprint.json", "_detected_blueprint.jpg")
+          .trim();
+        const id = latestImg.split("-")[0];
+        setUploadId(id);
 
-        if (!latest) throw new Error("No uploaded image found for depth rendering.");
-
-        // 2️⃣ Generate depth map
+        // 2️⃣ Depth estimation
         const depthRes = await fetch("http://localhost:5050/depth/run", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image: latest }),
+          body: JSON.stringify({ image: latestImg }),
         });
-        const depthData = await depthRes.json();
-        if (!depthData.depth_url) throw new Error("Depth URL missing in response.");
+        const depth = await depthRes.json();
+        if (!depth.depth_url) throw new Error("Depth generation failed.");
+        setDepthUrl(depth.depth_url);
 
-        setDepthUrl(depthData.depth_url);
-
-        // 3️⃣ Fetch Math Agent results (scaling + layout)
+        // 3️⃣ Math computation
         const mathRes = await fetch("http://localhost:5050/math/run");
-        const mathJson = await mathRes.json();
-        setMathData(mathJson);
+        const math = await mathRes.json();
 
-        // 4️⃣ Optional: Call Groq reasoning for scene correction
-        const reasonRes = await fetch("http://localhost:5050/reason/groq", {
+        // 4️⃣ Groq reasoning (layout reconstruction)
+        const groqRes = await fetch("http://localhost:5050/groq/groq", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ mathData: mathJson }),
+          body: JSON.stringify({
+            upload_id: id,
+            objects: math.objects,
+            scale_ratio_m: math.scale_ratio_m,
+            depth_hint: depth.depth_values || [],
+          }),
         });
+        const groq = await groqRes.json();
+        if (!Array.isArray(groq.result))
+          throw new Error("Invalid Groq reasoning output.");
 
-        const reasonJson = await reasonRes.json();
-        if (reasonJson.correctedScene) {
-          setReasonedObjects(reasonJson.correctedScene);
-        }
+        setLayout(groq.result);
       } catch (err) {
-        console.error("❌ Initialization failed:", err);
+        console.error("❌ Init error:", err);
         setError(err.message);
       } finally {
         setLoading(false);
       }
-    };
+    }
 
     init();
   }, []);
 
-  // ───────────────────────────────
-  // 🧱 Three.js Scene Setup
-  // ───────────────────────────────
+  // 🎨 3D Scene Renderer
   useEffect(() => {
-    if (!depthUrl || !mathData || error) return;
+    let isMounted = true;
+    if (!depthUrl || error) return;
 
     const mount = mountRef.current;
+    if (!mount) {
+      console.warn("⚠️ mountRef is null — skipping render init");
+      return;
+    }
 
-    // Scene setup
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0a0a0a);
+    scene.background = new THREE.Color(0x111111);
 
     const camera = new THREE.PerspectiveCamera(
       65,
       window.innerWidth / window.innerHeight,
       0.1,
-      200
+      100
     );
-    camera.position.set(6, 8, 10);
+    camera.position.set(8, 10, 14);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.shadowMap.enabled = true;
     mount.appendChild(renderer.domElement);
 
-    // Lighting
-    const hemi = new THREE.HemisphereLight(0xffffff, 0x404040, 1.3);
-    scene.add(hemi);
-
-    const dir = new THREE.DirectionalLight(0xffffff, 1.8);
-    dir.position.set(-5, 10, 5);
-    dir.castShadow = true;
-    scene.add(dir);
-
-    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-
-    // Controls
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x333333, 1.2));
 
-    // Ground plane
-    const floor = new THREE.Mesh(
-      new THREE.PlaneGeometry(20, 20),
+    // Depth surface
+    const tex = new THREE.TextureLoader().load(depthUrl);
+    const plane = new THREE.Mesh(
+      new THREE.PlaneGeometry(12, 12, 256, 256),
       new THREE.MeshStandardMaterial({
-        color: 0x1a1a1a,
-        roughness: 0.9,
-        metalness: 0.1,
+        map: tex,
+        displacementMap: tex,
+        displacementScale: scale * 0.6,
+        roughness: 0.8,
+        color: 0xffffff,
       })
     );
-    floor.rotation.x = -Math.PI / 2;
-    floor.receiveShadow = true;
-    scene.add(floor);
+    plane.rotation.x = -Math.PI / 2;
+    scene.add(plane);
 
-    // Depth map as displacement surface
-    const loader = new THREE.TextureLoader();
-    const depthTex = loader.load(depthUrl);
-
-    const surfaceGeo = new THREE.PlaneGeometry(10, 10, 512, 512);
-    const surfaceMat = new THREE.MeshStandardMaterial({
-      map: depthTex,
-      displacementMap: depthTex,
-      displacementScale: scale * 0.4,
-      metalness: 0.2,
-      roughness: 0.8,
-      color: 0xffffff,
+    // Object overlays (walls, doors, etc.)
+    layout.forEach((o) => {
+      const { label, position, size } = o;
+      const geo = new THREE.BoxGeometry(size.width, size.height, size.depth);
+      const colorMap = {
+        Wall: 0xdddddd,
+        Door: 0x8b4513,
+        Window: 0x87cefa,
+        Column: 0xffd700,
+        "Stair Case": 0xa9a9a9,
+        Railing: 0x999999,
+      };
+      const mat = new THREE.MeshStandardMaterial({
+        color: colorMap[label] || 0x999999,
+        opacity: label === "Window" ? 0.6 : 1.0,
+        transparent: label === "Window",
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(position.x, position.y, position.z);
+      scene.add(mesh);
     });
 
-    const surface = new THREE.Mesh(surfaceGeo, surfaceMat);
-    surface.rotation.x = -Math.PI / 2;
-    surface.position.y = 0;
-    surface.receiveShadow = true;
-    scene.add(surface);
-
-    // Semantic objects (Walls, Doors, etc.)
-    const COLORS = { Wall: 0xffffff, Door: 0xa0522d, Window: 0x87ceeb };
-
-    const sourceObjects = reasonedObjects.length
-      ? reasonedObjects
-      : mathData.objects.slice(0, 20);
-
-    sourceObjects.forEach((obj) => {
-      const height = obj.scaled_height_m || obj.size?.height || 2;
-      const color = COLORS[obj.label] || 0xffffff;
-      const box = new THREE.Mesh(
-        new THREE.BoxGeometry(
-          obj.size?.width || 0.4,
-          height,
-          obj.size?.depth || 0.4
-        ),
-        new THREE.MeshStandardMaterial({
-          color,
-          opacity: 0.85,
-          transparent: true,
-        })
-      );
-
-      const x = obj.position?.x ?? Math.random() * 8 - 4;
-      const z = obj.position?.z ?? Math.random() * 8 - 4;
-      box.position.set(x, height / 2, z);
-      scene.add(box);
-    });
-
-    // Animation loop
     const animate = () => {
+      if (!isMounted) return;
       requestAnimationFrame(animate);
       controls.update();
       renderer.render(scene, camera);
     };
     animate();
 
-    // Resize handler
     const handleResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     };
-
     window.addEventListener("resize", handleResize);
 
+    // Cleanup
     return () => {
+      isMounted = false;
       window.removeEventListener("resize", handleResize);
-      mount.removeChild(renderer.domElement);
-      renderer.dispose();
-      surfaceGeo.dispose();
-      surfaceMat.dispose();
+      if (mount && renderer) {
+        mount.removeChild(renderer.domElement);
+        renderer.dispose();
+      }
     };
-  }, [depthUrl, mathData, reasonedObjects, scale, error]);
+  }, [depthUrl, layout, scale, error]);
 
-  // ───────────────────────────────
-  // 🎨 UI Rendering
-  // ───────────────────────────────
-  if (loading)
-    return (
-      <div className="center-screen">
-        <span>🌀 Loading Depth + Scene Reasoning...</span>
-      </div>
-    );
-
-  if (error)
-    return (
-      <div className="center-screen error">
-        <span>❌ {error}</span>
-      </div>
-    );
+  // 🧭 UI Rendering
+  if (loading) return <div className="center-screen">Building 3D Scene...</div>;
+  if (error) return <div className="center-screen error">❌ {error}</div>;
 
   return (
     <div className="viewer-container">
       <div ref={mountRef} className="viewer-canvas" />
-
-      {/* Back Button */}
-      <button onClick={() => navigate(-1)} className="back-btn">
-        ← Back
+      <button className="back-btn" onClick={() => navigate(-1)}>
+        Back
       </button>
-
-      {/* Height Scale Slider */}
       <div className="slider-container">
         <label>Height Scale: {scale.toFixed(1)}</label>
         <input
