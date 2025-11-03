@@ -4,7 +4,8 @@ import multer from "multer";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import groqRoutes from "./routes/groqRoutes.js";
+import geminiRoutes from './routes/geminiRoutes.js';
+
 import * as ImageJS from "image-js";
 const { Image } = ImageJS;
 import tourGuideRoutes from "./routes/tourGuideRoutes.js";
@@ -123,7 +124,7 @@ app.post("/validate-blueprint", async (req, res) => {
 // ---------- Static + Routes ----------
 app.use("/uploads", express.static(uploadDir));
 app.use("/agents/outputs", express.static(outputsDir));
-app.use("/groq", groqRoutes);
+   app.use('/gemini', geminiRoutes);
 app.use("/tour-guide", tourGuideRoutes);
 app.use("/depth", depthRoutes);
 app.use("/agents/outputs", express.static(path.join(__dirname, "../agents/outputs")));

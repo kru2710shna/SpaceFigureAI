@@ -1,0 +1,251 @@
+type,style,color,material,shape,details,room_type,price_range,size,prompt
+chair,scandinavian,walnut,walnut/concrete,wingback,wingback,living,standard,25x27x31,Scandinavian walnut walnut chair with wingback wingback for living room
+table,minimal,sand,birch,rectangular,extendable,office,premium,78x42x28,Minimal sand birch table with extendable for office room
+bed,industrial,cream,cotton/velvet,low-profile,storage drawers,bedroom,standard,82x63x28,Industrial cream cotton bed with storage drawers low-profile for bedroom room
+chair,art deco,beige,velvet/steel,rectangular,splayed-legs,office,luxury,25x32x36,Art deco beige velvet chair with splayed-legs for office room
+wardrobe,scandinavian,brown,marble/pine,rectangular,live-edge,kids,budget,50x24x79,Scandinavian brown marble wardrobe with live-edge for kids room
+lamp,modern,olive,metal,slim,task lighting,kids,standard,9x9x18,Modern olive metal lamp with task lighting for kids room
+wardrobe,scandinavian,olive,velvet,rectangular,wall-mounted,office,standard,52x26x80,Scandinavian olive velvet wardrobe with wall-mounted for office room
+wardrobe,midcentury,navy,aluminum,rectangular,cane panels,studio,budget,63x22x76,Midcentury navy aluminum wardrobe with cane panels for studio room
+bed,rustic,cream,iron,low-profile,channel-tufted,studio,premium,83x63x20,Rustic cream iron bed with channel-tufted low-profile for studio room
+lamp,modern,gray,pine,slim,storage drawers,living,budget,10x5x23,Modern gray pine lamp with storage drawers for living room
+bed,minimal,gray,aluminum/fabric,low-profile,tall headboard,kids,luxury,83x62x19,Minimal gray aluminum bed with tall headboard low-profile for kids room
+bed,midcentury,olive,fabric,rectangular,ribbed texture,dining,budget,80x64x33,Midcentury olive fabric bed with ribbed texture for dining room
+dresser,coastal,charcoal,bamboo,rectangular,matte finish,office,premium,72x19x33,Coastal charcoal bamboo dresser with matte finish for office room
+table,art deco,gray,leather,oval,pedestal-base,dining,budget,61x63x30,Art deco gray leather table with pedestal-base for dining room
+bed,contemporary,gray,rattan/leather,low-profile,open shelving,studio,budget,83x61x29,Contemporary gray rattan bed with open shelving low-profile for studio room
+table,transitional,oak,pine,square,task lighting,bedroom,budget,52x52x28,Transitional oak pine table with task lighting for bedroom room
+dresser,art deco,navy,linen,rectangular,storage drawers,living,premium,71x18x38,Art deco navy linen dresser with storage drawers for living room
+bookshelf,rustic,gray,leather/velvet,slim,ribbed texture,office,standard,34x7x83,Rustic gray leather bookshelf with ribbed texture for office room
+dresser,transitional,sand,bamboo,rectangular,floating design,bedroom,standard,72x19x32,Transitional sand bamboo dresser with floating design for bedroom room
+table,coastal,black,jute/bamboo,square,coffee table,dining,budget,32x32x19,Coastal black jute table with coffee table for dining room
+bed,contemporary,brown,steel,rectangular,extendable,bedroom,standard,82x80x30,Contemporary brown steel bed with extendable for bedroom room
+table,rustic,black,aluminum,rectangular,coffee table,studio,standard,39x30x17,Rustic black aluminum table with coffee table for studio room
+lamp,midcentury,beige,fabric,slim,sectional chaise,bedroom,luxury,11x6x29,Midcentury beige fabric lamp with sectional chaise for bedroom room
+bookshelf,rustic,oak,marble/steel,rectangular,glass doors,kids,standard,30x15x70,Rustic oak marble bookshelf with glass doors for kids room
+lamp,traditional,black,birch,tall,tall,living,premium,13x14x58,Traditional black birch lamp with tall tall for living room
+table,transitional,charcoal,aluminum/jute,square,extendable,studio,budget,52x52x28,Transitional charcoal aluminum table with extendable for studio room
+bed,industrial,black,velvet/birch,low-profile,low-profile,office,budget,81x60x21,Industrial black velvet bed with low-profile low-profile for office room
+bed,japandi,charcoal,metal,rectangular,low-profile,dining,premium,80x76x18,Japandi charcoal metal bed with low-profile for dining room
+desk,japandi,cream,rattan/glass,rectangular,live-edge,dining,standard,55x26x28,Japandi cream rattan desk with live-edge for dining room
+dresser,coastal,navy,linen,rectangular,storage drawers,studio,premium,56x21x32,Coastal navy linen dresser with storage drawers for studio room
+bed,minimal,walnut,bamboo,low-profile,channel-tufted,bedroom,budget,82x62x25,Minimal walnut bamboo bed with channel-tufted low-profile for bedroom room
+chair,modern,charcoal,leather,wingback,glass doors,dining,standard,27x27x38,Modern charcoal leather chair with glass doors wingback for dining room
+bed,industrial,black,linen,rectangular,low-profile,studio,budget,84x61x27,Industrial black linen bed with low-profile for studio room
+chair,farmhouse,beige,metal,rectangular,matte finish,studio,premium,26x32x42,Farmhouse beige metal chair with matte finish for studio room
+desk,minimal,teal,oak,rectangular,slim,studio,standard,51x27x29,Minimal teal oak desk with slim for studio room
+bed,modern,navy,jute,low-profile,brushed brass,living,premium,84x60x30,Modern navy jute bed with brushed brass low-profile for living room
+wardrobe,farmhouse,charcoal,pine,rectangular,sectional chaise,kids,budget,69x24x84,Farmhouse charcoal pine wardrobe with sectional chaise for kids room
+lamp,transitional,gray,pine,slim,task lighting,kids,budget,12x5x29,Transitional gray pine lamp with task lighting for kids room
+lamp,industrial,olive,bamboo/glass,slim,task lighting,kids,budget,15x5x26,Industrial olive bamboo lamp with task lighting for kids room
+bookshelf,rustic,gray,leather/pine,rectangular,wall-mounted,office,premium,46x14x63,Rustic gray leather bookshelf with wall-mounted for office room
+chair,farmhouse,brown,aluminum/oak,slim,coffee table,bedroom,standard,30x17x31,Farmhouse brown aluminum chair with coffee table for bedroom room
+chair,midcentury,teal,steel,wingback,splayed-legs,dining,budget,30x25x35,Midcentury teal steel chair with splayed-legs wingback for dining room
+wardrobe,minimal,white,fabric/steel,rectangular,matte finish,dining,budget,59x26x72,Minimal white fabric wardrobe with matte finish for dining room
+wardrobe,rustic,cream,jute/pine,rectangular,matte finish,kids,budget,65x22x74,Rustic cream jute wardrobe with matte finish for kids room
+table,industrial,charcoal,fabric,oval,pedestal-base,office,standard,50x54x30,Industrial charcoal fabric table with pedestal-base for office room
+sofa,art deco,brown,jute/steel,low-profile,sectional chaise,living,budget,89x33x26,Art deco brown jute sofa with sectional chaise low-profile for living room
+chair,art deco,sand,leather,rectangular,cane panels,office,budget,28x29x42,Art deco sand leather chair with cane panels for office room
+table,colonial,oak,linen,round,pedestal-base,kids,standard,23x17x26,Colonial oak linen table with pedestal-base for kids room
+bookshelf,scandinavian,white,marble,slim,clean lines,office,premium,44x7x63,Scandinavian white marble bookshelf with clean lines for office room
+sofa,traditional,navy,birch,low-profile,clean lines,bedroom,budget,73x36x24,Traditional navy birch sofa with clean lines low-profile for bedroom room
+sofa,transitional,walnut,birch/steel,rectangular,sectional chaise,office,budget,89x36x37,Transitional walnut birch sofa with sectional chaise for office room
+bookshelf,transitional,gray,rattan,rectangular,open shelving,living,budget,43x12x68,Transitional gray rattan bookshelf with open shelving for living room
+lamp,midcentury,gray,rattan/steel,slim,task lighting,dining,premium,9x6x25,Midcentury gray rattan lamp with task lighting for dining room
+chair,minimal,gray,velvet,slim,storage drawers,bedroom,premium,31x18x40,Minimal gray velvet chair with storage drawers for bedroom room
+bookshelf,scandinavian,walnut,walnut/cotton,slim,cane panels,kids,premium,40x7x62,Scandinavian walnut walnut bookshelf with cane panels for kids room
+chair,scandinavian,navy,bamboo,wingback,splayed-legs,kids,budget,24x25x34,Scandinavian navy bamboo chair with splayed-legs wingback for kids room
+chair,contemporary,cream,leather,slim,soft edges,kids,budget,32x18x33,Contemporary cream leather chair with soft edges for kids room
+chair,farmhouse,white,marble/aluminum,wingback,wingback,living,standard,25x29x35,Farmhouse white marble chair with wingback wingback for living room
+chair,colonial,white,fabric,rectangular,wingback,studio,premium,25x24x33,Colonial white fabric chair with wingback for studio room
+table,farmhouse,teal,aluminum,square,coffee table,living,premium,37x37x17,Farmhouse teal aluminum table with coffee table for living room
+sofa,minimal,oak,glass,rectangular,task lighting,bedroom,budget,74x32x37,Minimal oak glass sofa with task lighting for bedroom room
+desk,scandinavian,walnut,birch,slim,tall headboard,kids,luxury,62x15x28,Scandinavian walnut birch desk with tall headboard for kids room
+table,colonial,navy,velvet,rectangular,coffee table,dining,standard,44x21x19,Colonial navy velvet table with coffee table for dining room
+sofa,japandi,beige,metal,rectangular,low-profile,bedroom,standard,79x33x27,Japandi beige metal sofa with low-profile for bedroom room
+bed,farmhouse,gray,glass,rectangular,tall headboard,bedroom,standard,81x76x35,Farmhouse gray glass bed with tall headboard for bedroom room
+dresser,farmhouse,sand,fabric,rectangular,storage drawers,dining,standard,49x19x34,Farmhouse sand fabric dresser with storage drawers for dining room
+desk,transitional,gray,oak,slim,storage drawers,bedroom,budget,63x16x29,Transitional gray oak desk with storage drawers for bedroom room
+table,art deco,walnut,jute/concrete,rectangular,pedestal-base,dining,standard,86x36x29,Art deco walnut jute table with pedestal-base for dining room
+desk,midcentury,walnut,marble/iron,rectangular,storage drawers,kids,premium,61x24x28,Midcentury walnut marble desk with storage drawers for kids room
+desk,midcentury,brown,cotton/walnut,rectangular,open shelving,office,budget,59x26x28,Midcentury brown cotton desk with open shelving for office room
+sofa,contemporary,black,aluminum,rectangular,channel-tufted,dining,budget,92x38x31,Contemporary black aluminum sofa with channel-tufted for dining room
+lamp,minimal,beige,velvet,tall,task lighting,kids,luxury,10x14x23,Minimal beige velvet lamp with task lighting tall for kids room
+sofa,coastal,gray,walnut,rectangular,glass doors,kids,standard,92x36x36,Coastal gray walnut sofa with glass doors for kids room
+desk,rustic,walnut,iron,slim,clean lines,kids,standard,62x18x30,Rustic walnut iron desk with clean lines for kids room
+cabinet,minimal,beige,rattan,rectangular,cane panels,living,premium,46x20x40,Minimal beige rattan cabinet with cane panels for living room
+bed,scandinavian,black,steel,rectangular,ribbed texture,bedroom,budget,79x38x27,Scandinavian black steel bed with ribbed texture for bedroom room
+bookshelf,farmhouse,charcoal,cotton,rectangular,wall-mounted,dining,premium,38x15x64,Farmhouse charcoal cotton bookshelf with wall-mounted for dining room
+desk,farmhouse,gray,concrete/bamboo,rectangular,slim,bedroom,standard,68x26x30,Farmhouse gray concrete desk with slim for bedroom room
+dresser,scandinavian,teal,fabric/jute,rectangular,open shelving,office,standard,60x20x34,Scandinavian teal fabric dresser with open shelving for office room
+bookshelf,colonial,beige,iron/pine,slim,sectional chaise,office,standard,48x8x83,Colonial beige iron bookshelf with sectional chaise for office room
+wardrobe,japandi,beige,metal,rectangular,glass doors,bedroom,standard,67x20x72,Japandi beige metal wardrobe with glass doors for bedroom room
+bed,midcentury,charcoal,birch,rectangular,storage drawers,dining,standard,81x60x31,Midcentury charcoal birch bed with storage drawers for dining room
+sofa,contemporary,black,linen,low-profile,3-seat,studio,premium,83x39x28,Contemporary black linen sofa with 3-seat low-profile for studio room
+table,scandinavian,white,walnut/oak,square,extendable,living,budget,70x70x28,Scandinavian white walnut table with extendable for living room
+table,traditional,sand,bamboo,square,extendable,dining,standard,68x68x30,Traditional sand bamboo table with extendable for dining room
+chair,rustic,olive,glass/rattan,wingback,slim,studio,budget,29x28x41,Rustic olive glass chair with slim wingback for studio room
+chair,traditional,navy,marble,rectangular,wingback,office,budget,28x27x41,Traditional navy marble chair with wingback for office room
+bookshelf,coastal,oak,leather,slim,task lighting,office,standard,30x9x83,Coastal oak leather bookshelf with task lighting for office room
+desk,industrial,teal,leather,rectangular,storage drawers,living,budget,53x26x28,Industrial teal leather desk with storage drawers for living room
+bed,modern,beige,walnut,rectangular,3-seat,office,premium,80x41x25,Modern beige walnut bed with 3-seat for office room
+sofa,contemporary,white,walnut,rectangular,sectional chaise,living,premium,92x35x34,Contemporary white walnut sofa with sectional chaise for living room
+chair,industrial,white,iron/metal,wingback,splayed-legs,office,premium,30x24x36,Industrial white iron chair with splayed-legs wingback for office room
+cabinet,midcentury,brown,walnut,rectangular,tall headboard,living,standard,39x16x30,Midcentury brown walnut cabinet with tall headboard for living room
+table,farmhouse,olive,cotton,oval,live-edge,bedroom,luxury,55x61x28,Farmhouse olive cotton table with live-edge for bedroom room
+wardrobe,farmhouse,teal,jute,rectangular,storage drawers,studio,budget,68x20x77,Farmhouse teal jute wardrobe with storage drawers for studio room
+chair,rustic,cream,bamboo/velvet,slim,soft edges,dining,standard,31x19x41,Rustic cream bamboo chair with soft edges for dining room
+sofa,farmhouse,olive,fabric,rectangular,glass doors,bedroom,standard,96x34x32,Farmhouse olive fabric sofa with glass doors for bedroom room
+wardrobe,colonial,cream,iron/steel,rectangular,glass doors,bedroom,standard,52x24x83,Colonial cream iron wardrobe with glass doors for bedroom room
+table,japandi,black,birch/marble,square,task lighting,kids,standard,69x69x29,Japandi black birch table with task lighting for kids room
+bed,industrial,sand,aluminum/velvet,low-profile,sectional chaise,bedroom,standard,82x62x20,Industrial sand aluminum bed with sectional chaise low-profile for bedroom room
+sofa,rustic,olive,cotton/glass,low-profile,brushed brass,studio,standard,77x37x22,Rustic olive cotton sofa with brushed brass low-profile for studio room
+cabinet,contemporary,white,fabric,rectangular,glass doors,office,standard,36x19x38,Contemporary white fabric cabinet with glass doors for office room
+lamp,minimal,oak,bamboo/glass,tall,storage drawers,office,standard,8x12x22,Minimal oak bamboo lamp with storage drawers tall for office room
+table,modern,black,marble,oval,live-edge,studio,standard,66x66x29,Modern black marble table with live-edge for studio room
+sofa,art deco,black,leather,rectangular,channel-tufted,dining,premium,92x34x37,Art deco black leather sofa with channel-tufted for dining room
+cabinet,japandi,charcoal,aluminum,square,clean lines,dining,standard,28x28x37,Japandi charcoal aluminum cabinet with clean lines for dining room
+table,transitional,black,iron/metal,square,glass doors,bedroom,standard,64x64x30,Transitional black iron table with glass doors for bedroom room
+lamp,japandi,black,metal/birch,tall,tall,bedroom,budget,15x18x71,Japandi black metal lamp with tall tall for bedroom room
+lamp,coastal,sand,pine,slim,live-edge,living,premium,15x5x26,Coastal sand pine lamp with live-edge for living room
+chair,japandi,beige,rattan,wingback,floating design,kids,budget,26x32x39,Japandi beige rattan chair with floating design wingback for kids room
+wardrobe,scandinavian,oak,glass,rectangular,brushed brass,kids,luxury,69x21x74,Scandinavian oak glass wardrobe with brushed brass for kids room
+chair,transitional,white,oak,rectangular,glass doors,bedroom,budget,30x26x35,Transitional white oak chair with glass doors for bedroom room
+dresser,midcentury,oak,rattan,rectangular,matte finish,dining,standard,57x20x35,Midcentury oak rattan dresser with matte finish for dining room
+table,midcentury,cream,fabric,oval,live-edge,bedroom,standard,60x56x30,Midcentury cream fabric table with live-edge for bedroom room
+cabinet,modern,walnut,jute,rectangular,glass doors,living,budget,45x20x42,Modern walnut jute cabinet with glass doors for living room
+bed,traditional,cream,aluminum,rectangular,soft edges,bedroom,budget,75x56x36,Traditional cream aluminum bed with soft edges for bedroom room
+dresser,transitional,white,iron,rectangular,matte finish,kids,budget,48x21x39,Transitional white iron dresser with matte finish for kids room
+desk,modern,brown,concrete,rectangular,storage drawers,living,standard,67x28x30,Modern brown concrete desk with storage drawers for living room
+table,rustic,cream,birch/bamboo,round,extendable,living,standard,19x23x20,Rustic cream birch table with extendable for living room
+sofa,farmhouse,white,fabric,rectangular,low-profile,studio,premium,76x33x25,Farmhouse white fabric sofa with low-profile for studio room
+desk,farmhouse,brown,fabric,rectangular,storage drawers,studio,standard,67x24x29,Farmhouse brown fabric desk with storage drawers for studio room
+chair,colonial,beige,rattan,slim,live-edge,bedroom,budget,25x17x40,Colonial beige rattan chair with live-edge for bedroom room
+lamp,rustic,brown,aluminum,slim,tall,living,standard,17x10x64,Rustic brown aluminum lamp with tall for living room
+lamp,modern,beige,metal,tall,cane panels,bedroom,premium,12x8x23,Modern beige metal lamp with cane panels tall for bedroom room
+chair,scandinavian,sand,walnut/cotton,rectangular,splayed-legs,office,budget,32x31x42,Scandinavian sand walnut chair with splayed-legs for office room
+sofa,art deco,olive,velvet/walnut,low-profile,brushed brass,living,premium,86x40x23,Art deco olive velvet sofa with brushed brass low-profile for living room
+cabinet,art deco,black,velvet,square,glass doors,office,budget,26x26x31,Art deco black velvet cabinet with glass doors for office room
+cabinet,industrial,oak,concrete,square,glass doors,kids,standard,25x25x40,Industrial oak concrete cabinet with glass doors for kids room
+cabinet,scandinavian,oak,oak/jute,rectangular,soft edges,kids,standard,36x18x42,Scandinavian oak oak cabinet with soft edges for kids room
+table,farmhouse,teal,concrete,round,coffee table,bedroom,standard,28x26x16,Farmhouse teal concrete table with coffee table for bedroom room
+dresser,farmhouse,brown,pine,rectangular,storage drawers,office,budget,50x22x36,Farmhouse brown pine dresser with storage drawers for office room
+table,scandinavian,oak,velvet,round,live-edge,living,premium,20x22x20,Scandinavian oak velvet table with live-edge for living room
+desk,coastal,navy,rattan/linen,slim,3-seat,office,standard,68x14x29,Coastal navy rattan desk with 3-seat for office room
+chair,rustic,black,iron,wingback,floating design,living,standard,27x24x32,Rustic black iron chair with floating design wingback for living room
+sofa,colonial,oak,linen,rectangular,channel-tufted,dining,standard,79x39x31,Colonial oak linen sofa with channel-tufted for dining room
+chair,midcentury,gray,walnut/rattan,rectangular,splayed-legs,kids,standard,26x24x34,Midcentury gray walnut chair with splayed-legs for kids room
+cabinet,midcentury,teal,cotton/birch,square,matte finish,office,budget,28x28x37,Midcentury teal cotton cabinet with matte finish for office room
+chair,industrial,teal,leather,slim,wingback,kids,standard,26x14x41,Industrial teal leather chair with wingback for kids room
+sofa,transitional,white,glass,low-profile,3-seat,office,standard,83x38x22,Transitional white glass sofa with 3-seat low-profile for office room
+sofa,colonial,beige,linen,rectangular,tall headboard,living,premium,95x39x34,Colonial beige linen sofa with tall headboard for living room
+sofa,colonial,navy,leather,rectangular,matte finish,studio,premium,88x37x35,Colonial navy leather sofa with matte finish for studio room
+dresser,minimal,brown,pine/bamboo,rectangular,wall-mounted,dining,budget,70x20x39,Minimal brown pine dresser with wall-mounted for dining room
+dresser,midcentury,cream,glass,rectangular,storage drawers,studio,premium,66x18x34,Midcentury cream glass dresser with storage drawers for studio room
+bed,coastal,brown,glass,rectangular,storage drawers,office,budget,77x42x24,Coastal brown glass bed with storage drawers for office room
+bed,coastal,olive,leather/rattan,rectangular,open shelving,living,premium,75x41x31,Coastal olive leather bed with open shelving for living room
+desk,industrial,black,birch/cotton,rectangular,brushed brass,kids,budget,48x29x29,Industrial black birch desk with brushed brass for kids room
+table,minimal,sand,bamboo/walnut,oval,sectional chaise,dining,premium,75x69x29,Minimal sand bamboo table with sectional chaise for dining room
+dresser,modern,oak,bamboo/iron,rectangular,storage drawers,office,budget,58x21x33,Modern oak bamboo dresser with storage drawers for office room
+lamp,japandi,beige,marble,slim,ribbed texture,office,standard,12x4x27,Japandi beige marble lamp with ribbed texture for office room
+sofa,traditional,white,marble/walnut,low-profile,coffee table,bedroom,budget,91x40x25,Traditional white marble sofa with coffee table low-profile for bedroom room
+table,traditional,beige,glass/linen,oval,coffee table,studio,budget,38x36x19,Traditional beige glass table with coffee table for studio room
+desk,transitional,walnut,leather,slim,brushed brass,dining,budget,58x15x28,Transitional walnut leather desk with brushed brass for dining room
+desk,colonial,walnut,oak,rectangular,sectional chaise,dining,standard,54x26x28,Colonial walnut oak desk with sectional chaise for dining room
+bed,traditional,black,iron,rectangular,low-profile,studio,premium,81x63x25,Traditional black iron bed with low-profile for studio room
+chair,transitional,gray,fabric,rectangular,extendable,studio,standard,26x30x31,Transitional gray fabric chair with extendable for studio room
+table,traditional,sand,birch,round,pedestal-base,kids,standard,20x22x22,Traditional sand birch table with pedestal-base for kids room
+table,traditional,sand,aluminum,rectangular,live-edge,bedroom,standard,69x42x30,Traditional sand aluminum table with live-edge for bedroom room
+desk,contemporary,oak,steel,rectangular,storage drawers,living,budget,66x27x29,Contemporary oak steel desk with storage drawers for living room
+cabinet,traditional,sand,marble,square,glass doors,office,standard,30x30x40,Traditional sand marble cabinet with glass doors for office room
+desk,contemporary,walnut,iron,rectangular,3-seat,kids,premium,66x26x30,Contemporary walnut iron desk with 3-seat for kids room
+wardrobe,contemporary,beige,iron/pine,rectangular,ribbed texture,studio,standard,64x26x82,Contemporary beige iron wardrobe with ribbed texture for studio room
+desk,minimal,cream,leather,rectangular,soft edges,office,standard,59x28x30,Minimal cream leather desk with soft edges for office room
+wardrobe,coastal,walnut,oak,rectangular,clean lines,living,standard,69x20x75,Coastal walnut oak wardrobe with clean lines for living room
+table,traditional,sand,fabric,round,coffee table,bedroom,standard,32x38x16,Traditional sand fabric table with coffee table for bedroom room
+sofa,traditional,brown,glass,rectangular,glass doors,bedroom,standard,77x32x34,Traditional brown glass sofa with glass doors for bedroom room
+bed,colonial,black,iron/marble,rectangular,soft edges,living,standard,81x61x25,Colonial black iron bed with soft edges for living room
+bookshelf,minimal,beige,steel/rattan,slim,open shelving,bedroom,standard,48x7x73,Minimal beige steel bookshelf with open shelving for bedroom room
+table,coastal,brown,oak,round,live-edge,kids,budget,19x21x24,Coastal brown oak table with live-edge for kids room
+chair,minimal,walnut,steel,wingback,matte finish,bedroom,standard,31x28x35,Minimal walnut steel chair with matte finish wingback for bedroom room
+table,industrial,navy,oak/cotton,round,live-edge,office,premium,20x20x23,Industrial navy oak table with live-edge for office room
+cabinet,japandi,beige,iron,square,task lighting,office,budget,30x30x41,Japandi beige iron cabinet with task lighting for office room
+desk,farmhouse,sand,iron,slim,storage drawers,studio,standard,65x18x29,Farmhouse sand iron desk with storage drawers for studio room
+cabinet,rustic,white,concrete/oak,square,cane panels,bedroom,standard,24x24x38,Rustic white concrete cabinet with cane panels for bedroom room
+cabinet,art deco,charcoal,leather/steel,rectangular,floating design,kids,standard,42x19x42,Art deco charcoal leather cabinet with floating design for kids room
+dresser,minimal,beige,fabric/aluminum,rectangular,matte finish,kids,standard,68x18x32,Minimal beige fabric dresser with matte finish for kids room
+bed,colonial,olive,velvet,rectangular,channel-tufted,bedroom,premium,80x53x32,Colonial olive velvet bed with channel-tufted for bedroom room
+lamp,scandinavian,sand,velvet,slim,task lighting,studio,standard,8x4x21,Scandinavian sand velvet lamp with task lighting for studio room
+bed,art deco,oak,leather,low-profile,matte finish,office,premium,75x55x22,Art deco oak leather bed with matte finish low-profile for office room
+bookshelf,coastal,cream,glass,rectangular,ribbed texture,bedroom,budget,47x14x65,Coastal cream glass bookshelf with ribbed texture for bedroom room
+sofa,art deco,navy,velvet,rectangular,low-profile,kids,budget,92x36x24,Art deco navy velvet sofa with low-profile for kids room
+lamp,farmhouse,navy,rattan/velvet,tall,floating design,dining,standard,10x10x27,Farmhouse navy rattan lamp with floating design tall for dining room
+sofa,transitional,black,jute,rectangular,task lighting,bedroom,budget,81x32x35,Transitional black jute sofa with task lighting for bedroom room
+sofa,modern,charcoal,metal/steel,low-profile,channel-tufted,kids,standard,81x34x28,Modern charcoal metal sofa with channel-tufted low-profile for kids room
+bed,farmhouse,teal,rattan/steel,low-profile,channel-tufted,bedroom,premium,77x53x25,Farmhouse teal rattan bed with channel-tufted low-profile for bedroom room
+lamp,coastal,navy,fabric,tall,floating design,bedroom,standard,10x10x19,Coastal navy fabric lamp with floating design tall for bedroom room
+wardrobe,industrial,olive,steel,rectangular,cane panels,office,premium,56x23x72,Industrial olive steel wardrobe with cane panels for office room
+bed,art deco,navy,aluminum,rectangular,matte finish,bedroom,luxury,80x61x31,Art deco navy aluminum bed with matte finish for bedroom room
+sofa,transitional,walnut,pine,low-profile,3-seat,dining,budget,91x40x27,Transitional walnut pine sofa with 3-seat low-profile for dining room
+chair,transitional,white,bamboo,slim,clean lines,bedroom,premium,26x18x34,Transitional white bamboo chair with clean lines for bedroom room
+table,colonial,navy,iron,square,pedestal-base,office,premium,55x55x30,Colonial navy iron table with pedestal-base for office room
+bed,art deco,white,steel,low-profile,open shelving,studio,budget,84x76x22,Art deco white steel bed with open shelving low-profile for studio room
+lamp,farmhouse,olive,pine/aluminum,slim,ribbed texture,kids,standard,9x6x20,Farmhouse olive pine lamp with ribbed texture for kids room
+desk,contemporary,gray,fabric,rectangular,slim,office,standard,65x28x30,Contemporary gray fabric desk with slim for office room
+wardrobe,colonial,sand,pine,rectangular,storage drawers,living,standard,69x26x80,Colonial sand pine wardrobe with storage drawers for living room
+bookshelf,japandi,sand,rattan,rectangular,wall-mounted,living,standard,30x16x66,Japandi sand rattan bookshelf with wall-mounted for living room
+chair,coastal,beige,marble,wingback,slim,dining,premium,29x24x34,Coastal beige marble chair with slim wingback for dining room
+sofa,traditional,olive,bamboo,low-profile,low-profile,office,standard,91x33x22,Traditional olive bamboo sofa with low-profile low-profile for office room
+sofa,midcentury,gray,glass/rattan,rectangular,3-seat,dining,budget,89x36x36,Midcentury gray glass sofa with 3-seat for dining room
+sofa,industrial,cream,fabric,rectangular,channel-tufted,office,standard,73x32x31,Industrial cream fabric sofa with channel-tufted for office room
+lamp,transitional,navy,aluminum,tall,task lighting,office,budget,13x11x22,Transitional navy aluminum lamp with task lighting tall for office room
+desk,modern,gray,cotton,slim,matte finish,dining,budget,66x16x29,Modern gray cotton desk with matte finish for dining room
+bed,farmhouse,sand,walnut,rectangular,tall headboard,office,luxury,84x64x28,Farmhouse sand walnut bed with tall headboard for office room
+bed,traditional,teal,birch,low-profile,coffee table,bedroom,premium,80x78x25,Traditional teal birch bed with coffee table low-profile for bedroom room
+chair,minimal,navy,velvet,rectangular,soft edges,dining,standard,31x32x35,Minimal navy velvet chair with soft edges for dining room
+cabinet,midcentury,beige,linen/rattan,square,matte finish,office,budget,28x28x34,Midcentury beige linen cabinet with matte finish for office room
+desk,transitional,oak,pine,rectangular,wall-mounted,dining,luxury,70x27x30,Transitional oak pine desk with wall-mounted for dining room
+bookshelf,minimal,brown,steel,slim,extendable,bedroom,premium,36x7x72,Minimal brown steel bookshelf with extendable for bedroom room
+sofa,colonial,charcoal,bamboo,rectangular,sectional chaise,living,budget,90x37x32,Colonial charcoal bamboo sofa with sectional chaise for living room
+sofa,traditional,navy,oak,rectangular,ribbed texture,studio,budget,87x38x35,Traditional navy oak sofa with ribbed texture for studio room
+bed,rustic,teal,walnut/iron,low-profile,brushed brass,living,budget,80x55x18,Rustic teal walnut bed with brushed brass low-profile for living room
+lamp,coastal,oak,cotton/linen,tall,tall,dining,standard,16x17x72,Coastal oak cotton lamp with tall tall for dining room
+desk,transitional,sand,concrete/fabric,slim,coffee table,dining,standard,64x15x28,Transitional sand concrete desk with coffee table for dining room
+bed,farmhouse,black,iron/velvet,low-profile,tall headboard,living,standard,76x55x24,Farmhouse black iron bed with tall headboard low-profile for living room
+wardrobe,scandinavian,olive,cotton,rectangular,cane panels,studio,premium,60x27x75,Scandinavian olive cotton wardrobe with cane panels for studio room
+cabinet,modern,black,oak/marble,square,soft edges,kids,luxury,26x26x34,Modern black oak cabinet with soft edges for kids room
+chair,rustic,gray,velvet,slim,matte finish,bedroom,luxury,26x18x42,Rustic gray velvet chair with matte finish for bedroom room
+bookshelf,scandinavian,charcoal,metal/oak,slim,glass doors,office,luxury,36x9x61,Scandinavian charcoal metal bookshelf with glass doors for office room
+sofa,coastal,oak,walnut,low-profile,low-profile,studio,budget,75x34x22,Coastal oak walnut sofa with low-profile low-profile for studio room
+dresser,scandinavian,cream,iron/cotton,rectangular,task lighting,studio,premium,70x21x35,Scandinavian cream iron dresser with task lighting for studio room
+desk,japandi,teal,oak/jute,rectangular,storage drawers,dining,budget,51x24x29,Japandi teal oak desk with storage drawers for dining room
+desk,modern,beige,velvet,rectangular,ribbed texture,dining,premium,50x26x28,Modern beige velvet desk with ribbed texture for dining room
+bookshelf,japandi,olive,pine/leather,rectangular,open shelving,bedroom,standard,43x16x71,Japandi olive pine bookshelf with open shelving for bedroom room
+bed,coastal,white,glass,low-profile,channel-tufted,dining,standard,81x63x27,Coastal white glass bed with channel-tufted low-profile for dining room
+cabinet,transitional,white,velvet,square,3-seat,living,budget,23x23x36,Transitional white velvet cabinet with 3-seat for living room
+desk,transitional,navy,glass,slim,live-edge,studio,premium,64x15x30,Transitional navy glass desk with live-edge for studio room
+bookshelf,japandi,navy,aluminum,rectangular,extendable,studio,standard,40x12x80,Japandi navy aluminum bookshelf with extendable for studio room
+desk,japandi,sand,fabric/bamboo,slim,slim,living,luxury,64x15x30,Japandi sand fabric desk with slim for living room
+desk,minimal,oak,velvet,rectangular,matte finish,kids,standard,61x24x29,Minimal oak velvet desk with matte finish for kids room
+wardrobe,rustic,black,iron,rectangular,tall headboard,dining,luxury,70x21x79,Rustic black iron wardrobe with tall headboard for dining room
+table,art deco,beige,bamboo/linen,oval,live-edge,dining,standard,63x61x28,Art deco beige bamboo table with live-edge for dining room
+bed,industrial,white,concrete/jute,low-profile,low-profile,kids,budget,80x61x21,Industrial white concrete bed with low-profile low-profile for kids room
+bookshelf,industrial,sand,iron,slim,task lighting,kids,standard,38x8x67,Industrial sand iron bookshelf with task lighting for kids room
+dresser,scandinavian,sand,leather,rectangular,storage drawers,living,premium,60x21x38,Scandinavian sand leather dresser with storage drawers for living room
+table,transitional,teal,oak/rattan,square,coffee table,living,standard,35x35x20,Transitional teal oak table with coffee table for living room
+cabinet,transitional,gray,leather,rectangular,coffee table,living,budget,32x20x30,Transitional gray leather cabinet with coffee table for living room
+table,minimal,teal,leather,rectangular,live-edge,living,standard,86x45x28,Minimal teal leather table with live-edge for living room
+cabinet,minimal,navy,linen/velvet,rectangular,glass doors,dining,standard,39x20x36,Minimal navy linen cabinet with glass doors for dining room
+dresser,transitional,white,metal/marble,rectangular,matte finish,bedroom,budget,65x20x37,Transitional white metal dresser with matte finish for bedroom room
+table,colonial,beige,iron,oval,brushed brass,dining,budget,56x50x30,Colonial beige iron table with brushed brass for dining room
+bed,japandi,teal,glass/leather,low-profile,storage drawers,living,budget,80x76x21,Japandi teal glass bed with storage drawers low-profile for living room
+dresser,minimal,sand,rattan/concrete,rectangular,matte finish,office,premium,52x19x38,Minimal sand rattan dresser with matte finish for office room
+table,japandi,teal,pine,square,extendable,kids,budget,55x55x28,Japandi teal pine table with extendable for kids room
+sofa,farmhouse,charcoal,velvet,low-profile,low-profile,dining,standard,78x34x24,Farmhouse charcoal velvet sofa with low-profile low-profile for dining room
+bookshelf,midcentury,walnut,linen,rectangular,tall headboard,bedroom,premium,43x14x81,Midcentury walnut linen bookshelf with tall headboard for bedroom room
+bed,minimal,oak,birch,rectangular,low-profile,kids,standard,83x60x22,Minimal oak birch bed with low-profile for kids room
+chair,industrial,sand,concrete,wingback,splayed-legs,bedroom,standard,28x24x39,Industrial sand concrete chair with splayed-legs wingback for bedroom room
+bed,modern,oak,leather,low-profile,low-profile,kids,standard,77x54x18,Modern oak leather bed with low-profile low-profile for kids room
+cabinet,art deco,black,jute,rectangular,glass doors,living,budget,48x16x36,Art deco black jute cabinet with glass doors for living room
+lamp,rustic,sand,iron/cotton,slim,task lighting,studio,premium,15x7x20,Rustic sand iron lamp with task lighting for studio room
+bed,japandi,black,linen,rectangular,storage drawers,office,standard,82x61x33,Japandi black linen bed with storage drawers for office room

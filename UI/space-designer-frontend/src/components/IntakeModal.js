@@ -18,7 +18,7 @@ function IntakeModal({ imageSrc }) {
 
   const fetchNextQuestion = async (currentStep, currentAnswers) => {
     try {
-      const res = await fetch("http://127.0.0.1:5050/groq/questions", {
+      const res = await fetch("http://127.0.0.1:5050/gemini/questions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ step: currentStep, prevAnswers: currentAnswers }),
@@ -40,7 +40,7 @@ function IntakeModal({ imageSrc }) {
 
   // ✅ Check backend status
   useEffect(() => {
-    fetch("http://127.0.0.1:5050/groq/status")
+    fetch("http://127.0.0.1:5050/gemini/status")
       .then((res) => res.json())
       .then((data) => setStatus(data.groq || "Online"))
       .catch(() => setStatus("Offline"));
@@ -66,7 +66,7 @@ function IntakeModal({ imageSrc }) {
     const confirmBlueprint = async () => {
       if (!imageSrc) return;
       try {
-        const res = await fetch("http://127.0.0.1:5050/groq/confirm", {
+        const res = await fetch("http://127.0.0.1:5050/gemini/confirm", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ image_url: imageSrc }),
@@ -104,7 +104,7 @@ function IntakeModal({ imageSrc }) {
   // ✅ Final reasoning (Groq analysis)
   const analyzeDesign = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:5050/groq/analyze", {
+      const res = await fetch("http://127.0.0.1:5050/gemini/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ image_url: imageSrc, intake: answers }),

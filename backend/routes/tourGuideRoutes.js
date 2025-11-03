@@ -31,6 +31,36 @@ const getLatestUploadedFile = () => {
   return files.length ? path.join(uploadsDir, files[0].file) : null;
 };
 
+// 🐍 Helper: Get correct Python executable path
+const getPythonCommand = () => {
+  const isWindows = process.platform === "win32";
+  
+  // Try virtual environment first
+  const venvPaths = isWindows 
+    ? [
+        path.join(backendDir, "venv", "Scripts", "python.exe"),
+        path.join(baseDir, "venv", "Scripts", "python.exe"),
+      ]
+    : [
+        path.join(backendDir, "venv", "bin", "python3"),
+        path.join(backendDir, "venv", "bin", "python"),
+        path.join(baseDir, "venv", "bin", "python3"),
+        path.join(baseDir, "venv", "bin", "python"),
+      ];
+  
+  // Check if venv exists
+  for (const venvPath of venvPaths) {
+    if (fs.existsSync(venvPath)) {
+      console.log("✅ Found Python venv at:", venvPath);
+      return `"${venvPath}"`;
+    }
+  }
+  
+  // Fallback to system Python
+  console.warn("⚠️ Virtual environment not found, using system Python");
+  return isWindows ? "python" : "python3";
+};
+
 // 🚀 Run Tour Guide Agent (calls Python process_media inline)
 router.post("/run", async (req, res) => {
   try {
@@ -63,7 +93,7 @@ router.post("/run", async (req, res) => {
       return res.status(404).json({ error: `Image not found: ${fullInputPath}` });
     }
 
-    // 🧭 Normalize paths for Python (use forward slashes, escape properly)
+    // 🧭 Normalize paths for Python (use forward slashes for cross-platform)
     const safeInput = fullInputPath.replace(/\\/g, "/");
     const safeOutput = outputsDir.replace(/\\/g, "/");
 
@@ -120,14 +150,14 @@ except Exception as e:
     const tempScriptPath = path.join(baseDir, "temp_tour_guide_script.py");
     fs.writeFileSync(tempScriptPath, pyScript, "utf-8");
 
-    const pythonCmd = process.platform === "win32" ? "python" : "python3";
-    const command = `${path.join(backendDir, "venv/bin/python3")} "${tempScriptPath}"`;
-
-
+    // Get the correct Python command for this platform
+    const pythonCmd = getPythonCommand();
+    const command = `${pythonCmd} "${tempScriptPath}"`;
 
     console.log("🧭 Full image path:", fullInputPath);
     console.log("📦 Outputs dir:", outputsDir);
     console.log("🧠 Mode override:", pyModeLiteral === "None" ? "(auto)" : pyModeLiteral.replace(/"/g, ""));
+    console.log("🐍 Python command:", pythonCmd);
     console.log("🚀 Executing command:\n", command);
     console.log("===================================");
 
@@ -233,13 +263,13 @@ except Exception as e:
         console.log("===============================\n");
 
         res.json({
-          message: "Tour Guide Agent completed successfully  ",
+          message: "Tour Guide Agent completed successfully",
           results: parsed,
         });
       }
     );
   } catch (err) {
-    console.error(" Route /tour-guide/run crashed:", err.message);
+    console.error("❌ Route /tour-guide/run crashed:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
