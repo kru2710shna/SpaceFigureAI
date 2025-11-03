@@ -1,7 +1,12 @@
 import express from "express";
 import dotenv from "dotenv";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 dotenv.config();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const router = express.Router();
 
 // ====================================================
@@ -13,6 +18,11 @@ const MODELS = {
   questions: "gemini-2.5-flash",
   analyze: "gemini-2.5-flash",
 };
+
+const answersDir = path.join(__dirname, "..", "answers");
+if (!fs.existsSync(answersDir)) {
+  fs.mkdirSync(answersDir, { recursive: true });
+}
 
 // ====================================================
 // ✅ Generic helper for Gemini API

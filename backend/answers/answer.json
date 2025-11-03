@@ -1,0 +1,15 @@
+{
+  "sessionId": "session_1730630400000",
+  "timestamp": "2025-11-03T08:40:00.000Z",
+  "completed": true,
+  "answers": {
+    "step0": "Modern",
+    "step1": "$10k-$20k",
+    "step2": "Living room, bright lighting",
+    "item_type": [
+      "sofa",
+      "coffee table",
+      "floor lamp"
+    ]
+  }
+}

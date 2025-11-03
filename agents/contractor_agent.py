@@ -9,9 +9,10 @@ image,imagewidth,type,style,color,material,shape,details,room_type,price_range,p
 """
 
 import csv
+import json
 from pathlib import Path
 from typing import List, Dict, Optional
-
+RESULTS_DIR = Path("backend/answers")
 # --- Aesthetic inference (lightweight, same idea as earlier) ---
 _AESTHETIC_ALIASES = {
     "japandi": "Japandi", "scandi": "Scandinavian", "scandinavian": "Scandinavian",
@@ -47,7 +48,7 @@ def _infer_aesthetic(style: str, materials: str, color: str, shape: str, prompt:
 
 def fetch_items(
     csv_path: str,
-    item_type: str,
+    item_types: List[str],
     *,
     budget: Optional[str] = None,        # one of: budget|standard|premium|luxury
     style: Optional[str] = None,     # e.g., Japandi, Industrial, Minimal...
@@ -63,7 +64,7 @@ def fetch_items(
     - at least one of (budget, aesthetic, color) must be provided
     - matching is case-insensitive and substring-friendly for aesthetic/color
     """
-    if not item_type:
+    if not item_types:
         raise ValueError("item_type is required.")
     if not (budget or style or color):
         raise ValueError("At least one of budget, aesthetic, or color must be provided.")
@@ -73,7 +74,7 @@ def fetch_items(
         raise FileNotFoundError(f"CSV not found: {csv_path}")
 
     # Normalize filters
-    item_type_norm = item_type.strip().lower()
+    item_types_norm = [item_type.strip().lower() for item_type in item_types]
     budget_norm = budget.strip().lower() if budget else None
     aesthetic_norm = style.strip().lower() if style else None
     color_norm = color.strip().lower() if color else None
@@ -95,52 +96,106 @@ def fetch_items(
                 raise ValueError(f"CSV is missing required columns: {sorted(missing)}")
 
         for row in reader:
-            # Normalize access but preserve original keys
+            # Normalize row for comparison
             r = {k.lower(): (v or "") for k, v in row.items()}
-
-            # 1) type filter (exact, case-insensitive)
-            if r.get("type","").strip().lower() != item_type_norm:
+            
+            # 1) Type filter (check if row type matches any in the list)
+            row_type = r.get("type", "").strip().lower()
+            if row_type not in item_types_norm:
                 continue
-
-            # 2) budget filter (exact match on price_range) if provided
-            if budget_norm and r.get("price_range","").strip().lower() != budget_norm:
+            
+            # 2) Budget filter (if provided)
+            if budget_norm and r.get("price_range", "").strip().lower() != budget_norm:
                 continue
-
-            # 3) style filter (supports substring & inferred)
+            
+            # 3) Aesthetic filter (if provided)
             if aesthetic_norm:
-                # If your CSV already has 'aesthetic', use it; else infer from style/material/color/shape/prompt
-                csv_aesthetic = (row.get("aesthetic") or "").strip()
-                if not csv_aesthetic:
-                    csv_aesthetic = _infer_aesthetic(
-                        r.get("style",""), r.get("material",""), r.get("color",""),
-                        r.get("shape",""), r.get("prompt","")
-                    )
+                csv_aesthetic = _infer_aesthetic(
+                    r.get("style", ""), r.get("material", ""), r.get("color", ""),
+                    r.get("shape", ""), r.get("prompt", "")
+                )
                 if aesthetic_norm not in csv_aesthetic.lower():
                     continue
-
-            # 4) color filter (substring)
-            if color_norm and color_norm not in r.get("color","").lower():
+            
+            # 4) Color filter (if provided)
+            if color_norm and color_norm not in r.get("color", "").lower():
                 continue
-
+            
             results.append(row)
             if len(results) >= limit:
                 break
-
+    
     return results
 
+def parse_budget_range(budget_str: str) -> Optional[str]:
+    """
+    Convert budget string like '$10k-$20k' to price_range format.
+    Maps to: budget|standard|premium|luxury
+    """
+    budget_lower = budget_str.lower().strip()
+    
+    # Extract numeric values
+    if "10k" in budget_lower and "20k" in budget_lower:
+        return "premium"
+    elif "5k" in budget_lower and "10k" in budget_lower:
+        return "standard"
+    elif "20k" in budget_lower:
+        return "luxury"
+    elif "5k" in budget_lower or "budget" in budget_lower:
+        return "budget"
+    
+    # Default mappings
+    if any(word in budget_lower for word in ["luxury", "high-end", "premium"]):
+        return "luxury"
+    elif any(word in budget_lower for word in ["standard", "moderate", "mid"]):
+        return "standard"
+    elif any(word in budget_lower for word in ["budget", "affordable", "economical"]):
+        return "budget"
+    
+    return "standard"
+
+def save_results(session_id: str, results: Dict):
+    """Save processed results to JSON file."""
+    output_path = RESULTS_DIR / f"{session_id}_results.json"
+    with output_path.open("w", encoding="utf-8") as f:
+        json.dump(results, f, indent=2, ensure_ascii=False)
+    print(f"Results saved to: {output_path}")
+
+def process_response_file(json_path: str):
+    """Process a questionnaire response JSON file."""
+    path = Path(json_path)
+    
+    if not path.exists():
+        raise FileNotFoundError(f"Response file not found: {json_path}")
+    
+    # Load response
+    with path.open("r", encoding="utf-8") as f:
+        response_data = json.load(f)
+    
+    # Process and fetch items
+    
+    answers = response_data.get("answers", {})
+    
+    # Extract parameters
+    aesthetic = answers.get("step0", None)
+    budget_str = answers.get("step1", None)
+    style = answers.get("step2", None)
+    color =answers.get("color", None)
+
+    budget = parse_budget_range(budget_str)
+    items = fetch_items(
+        csv_path="./agents/data/furniture_dataset.csv",
+        item_types=answers.get("item_type", ["sofa", "lamp", "table", "bed"]),
+        budget=budget
+    )
+    # Save results
+    session_id = response_data.get("sessionId", "unknown")
+    save_results(session_id, items)
+    
+    return items
 
 # -----------------------
 # Example usage (remove if importing)
 # -----------------------
 if __name__ == "__main__":
-    items = fetch_items(
-        csv_path="data/furniture_dataset.csv",
-        item_type="sofa",      # or None (will be inferred)
-        color="beige",                  # or "beige"
-        limit=20,
-        delimiter=","                # or ";" or "\t"
-    )
-    print(f"Found {len(items)} items")
-    # Show items
-    for it in items[:]:
-        print({k: it[k] for k in ["type","style","color","material","price_range","prompt"]})
+    process_response_file("backend/answers/answer.json")

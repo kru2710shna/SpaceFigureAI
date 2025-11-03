@@ -14,6 +14,7 @@ function IntakeModal({ imageSrc }) {
   const [answers, setAnswers] = useState({});
   const [showQuestion, setShowQuestion] = useState(false);
   const [currentInput, setCurrentInput] = useState("");
+  const [sessionId, setSessionId] = useState(null);
   const navigate = useNavigate();
 
   const fetchNextQuestion = async (currentStep, currentAnswers) => {
@@ -21,12 +22,21 @@ function IntakeModal({ imageSrc }) {
       const res = await fetch("http://127.0.0.1:5050/gemini/questions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ step: currentStep, prevAnswers: currentAnswers }),
+        body: JSON.stringify({ 
+          step: currentStep, 
+          prevAnswers: currentAnswers,
+          sessionId: sessionId 
+        }),
       });
       const data = await res.json();
 
+      if (data.sessionId && !sessionId) {
+        setSessionId(data.sessionId);
+      }
+
       if (data.done) {
         setShowQuestion(false);
+        console.log("✅ All answers saved to:", data.savedFile);
         analyzeDesign();
       } else {
         setQuestion(data.question || "Next question unavailable.");

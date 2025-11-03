@@ -1,0 +1,86 @@
+[
+  {
+    "type": "sofa",
+    "style": "contemporary",
+    "color": "black",
+    "material": "linen",
+    "shape": "low-profile",
+    "details": "3-seat",
+    "room_type": "studio",
+    "price_range": "premium",
+    "size": "83x39x28",
+    "prompt": "Contemporary black linen sofa with 3-seat low-profile for studio room"
+  },
+  {
+    "type": "sofa",
+    "style": "contemporary",
+    "color": "white",
+    "material": "walnut",
+    "shape": "rectangular",
+    "details": "sectional chaise",
+    "room_type": "living",
+    "price_range": "premium",
+    "size": "92x35x34",
+    "prompt": "Contemporary white walnut sofa with sectional chaise for living room"
+  },
+  {
+    "type": "sofa",
+    "style": "art deco",
+    "color": "black",
+    "material": "leather",
+    "shape": "rectangular",
+    "details": "channel-tufted",
+    "room_type": "dining",
+    "price_range": "premium",
+    "size": "92x34x37",
+    "prompt": "Art deco black leather sofa with channel-tufted for dining room"
+  },
+  {
+    "type": "sofa",
+    "style": "farmhouse",
+    "color": "white",
+    "material": "fabric",
+    "shape": "rectangular",
+    "details": "low-profile",
+    "room_type": "studio",
+    "price_range": "premium",
+    "size": "76x33x25",
+    "prompt": "Farmhouse white fabric sofa with low-profile for studio room"
+  },
+  {
+    "type": "sofa",
+    "style": "art deco",
+    "color": "olive",
+    "material": "velvet/walnut",
+    "shape": "low-profile",
+    "details": "brushed brass",
+    "room_type": "living",
+    "price_range": "premium",
+    "size": "86x40x23",
+    "prompt": "Art deco olive velvet sofa with brushed brass low-profile for living room"
+  },
+  {
+    "type": "sofa",
+    "style": "colonial",
+    "color": "beige",
+    "material": "linen",
+    "shape": "rectangular",
+    "details": "tall headboard",
+    "room_type": "living",
+    "price_range": "premium",
+    "size": "95x39x34",
+    "prompt": "Colonial beige linen sofa with tall headboard for living room"
+  },
+  {
+    "type": "sofa",
+    "style": "colonial",
+    "color": "navy",
+    "material": "leather",
+    "shape": "rectangular",
+    "details": "matte finish",
+    "room_type": "studio",
+    "price_range": "premium",
+    "size": "88x37x35",
+    "prompt": "Colonial navy leather sofa with matte finish for studio room"
+  }
+]
