@@ -139,7 +139,9 @@ app.post("/validate-blueprint", async (req, res) => {
 // ----------------------------------------------------
 app.use("/uploads", express.static(uploadDir));
 app.use("/workspace", express.static(workspaceDir));
+
 const agentsOutputsDir = path.join(__dirname, "../agents/outputs");
+
 if (fs.existsSync(agentsOutputsDir)) {
   app.use("/agents/outputs", express.static(agentsOutputsDir));
   console.log(`📂 Serving Agents Outputs: ${agentsOutputsDir}`);

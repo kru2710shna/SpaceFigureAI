@@ -1,0 +1,12 @@
+*.pt
+*.pth
+*.onnx
+*.mp4
+*.zip
+*.tar
+*.DS_Store
+venv/
+uploads/
+workspace/
+node_modules/.cache/
+.env
