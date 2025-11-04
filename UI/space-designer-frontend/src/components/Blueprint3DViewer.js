@@ -18,7 +18,12 @@ export default function Blueprint3DViewer() {
     // remove accidental double-encoded prefix
     url = url.replace(/^http.*?(http.*)$/i, "$1");
     // make local absolute
-    return `http://localhost:5050/agents/outputs/${url.split("/").pop()}`;
+    const BASE_URL =
+      window.location.hostname === "localhost"
+        ? "http://localhost:5050"
+        : "https://spacefigureai.onrender.com";
+
+    return `${BASE_URL}/agents/outputs/${url.split("/").pop()}`;
   };
 
   useEffect(() => {
@@ -28,7 +33,7 @@ export default function Blueprint3DViewer() {
     (async () => {
       try {
         console.log("📏 Fetching from Math Agent...");
-        const mathRes = await fetch("http://localhost:5050/math/run");
+        const mathRes = await fetch("https://spacefigureai.onrender.com/math/run");
         if (!mathRes.ok) throw new Error(`Math Agent unavailable (${mathRes.status})`);
         const math = await mathRes.json();
 
@@ -45,7 +50,7 @@ export default function Blueprint3DViewer() {
 
         if (!detectionsFile) {
           console.log("🧭 Fallback: fetching /test-outputs...");
-          const list = await fetch("http://localhost:5050/test-outputs");
+          const list = await fetch("https://spacefigureai.onrender.com/test-outputs");
           if (!list.ok) throw new Error("Failed to fetch test outputs");
           const data = await list.json();
           detectionsFile = (data.files || [])

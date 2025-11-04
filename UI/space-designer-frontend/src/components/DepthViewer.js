@@ -87,7 +87,7 @@ export default function DepthViewer() {
         console.log("📐 Math output:", math);
 
         // 4️⃣ Groq reasoning (object layout)
-        const groqRes = await fetch("http://localhost:5050/groq/run", {
+        const groqRes = await fetch("https://spacefigureai.onrender.com/groq/run", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

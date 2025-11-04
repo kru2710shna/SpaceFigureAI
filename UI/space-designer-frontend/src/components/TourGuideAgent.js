@@ -18,7 +18,7 @@ const TourGuideAgent = () => {
       setLoading(true);
       setStatus("Processing architectural layout...");
 
-      const res = await fetch("http://127.0.0.1:5050/tour-guide/run", {
+      const res = await fetch("https://spacefigureai.onrender.com/tour-guide/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mode: "blueprint" }),

@@ -20,17 +20,17 @@ const ShoppingAgent = () => {
     const fetchAll = async () => {
       try {
         setLoading(true);
-        const reasoningData = await safeFetch("http://127.0.0.1:5050/groq/analyze", {
+        const reasoningData = await safeFetch("https://spacefigureai.onrender.com/groq/analyze", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            image_url: "http://127.0.0.1:5050/agents/outputs/latest_detected_blueprint.jpg",
+            image_url: "https://spacefigureai.onrender.com/agents/outputs/latest_detected_blueprint.jpg",
             intake: { style: "Modern", budget: "$5k–$10k", lighting: "Natural" },
           }),
         });
         setReasoning(reasoningData);
 
-        const shoppingData = await safeFetch("http://127.0.0.1:5050/groq/shopping");
+        const shoppingData = await safeFetch("https://spacefigureai.onrender.com/groq/shopping");
         setData(shoppingData);
       } catch (err) {
         console.error("❌ Error:", err);

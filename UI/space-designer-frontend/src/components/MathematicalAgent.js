@@ -7,7 +7,7 @@ export default function MathematicalAgent() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const endpoint = "http://127.0.0.1:5050/math/run";
+    const endpoint = "https://spacefigureai.onrender.com/math/run";
     console.log("🧩 Fetching math results from:", endpoint);
 
     async function fetchMath() {

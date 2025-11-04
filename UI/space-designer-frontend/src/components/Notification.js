@@ -4,7 +4,7 @@ import "../styles/Notification.css";
 function Notification({ imageSrc, message, onRetry, onClose }) {
   const validSrc = imageSrc?.startsWith("http")
     ? imageSrc
-    : `http://localhost:5050${imageSrc}`;
+    : `https://spacefigureai.onrender.com${imageSrc}`;
 
   return (
     <div className="notification">

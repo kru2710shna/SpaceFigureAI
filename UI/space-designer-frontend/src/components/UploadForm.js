@@ -28,7 +28,7 @@ function UploadForm() {
 
     try {
       setUploading(true);
-      const response = await axios.post("http://127.0.0.1:5050/upload", formData, {
+      const response = await axios.post("https://spacefigureai.onrender.com/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -36,7 +36,7 @@ function UploadForm() {
       const uploaded = response.data.uploaded?.[0];
       if (!uploaded) throw new Error("Upload failed.");
 
-      const imgUrl = `http://localhost:5050${uploaded.input_url}`;
+      const imgUrl = `https://spacefigureai.onrender.com${uploaded.input_url}`;
       setUploadedImg(imgUrl);
       setUploadId(uploaded.uploadId);
       setMessage("Image uploaded successfully ✅");

@@ -42,7 +42,7 @@ function IntakeModal({ imageSrc, uploadId }) {
   useEffect(() => {
     async function checkStatus() {
       try {
-        const data = await safeFetch("http://127.0.0.1:5050/groq/status");
+        const data = await safeFetch("https://spacefigureai.onrender.com/groq/status");
         setStatus(data.groq || "Online");
       } catch {
         setStatus("Offline");
@@ -60,7 +60,7 @@ function IntakeModal({ imageSrc, uploadId }) {
       if (!imageSrc) return;
       try {
         setLoading(true);
-        const data = await safeFetch("http://127.0.0.1:5050/groq/confirm", {
+        const data = await safeFetch("https://spacefigureai.onrender.com/groq/confirm", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ image_url: imageSrc, upload_id: uploadId }),
@@ -90,7 +90,7 @@ function IntakeModal({ imageSrc, uploadId }) {
     async (currentStep, currentAnswers) => {
       try {
         setLoading(true);
-        const data = await safeFetch("http://127.0.0.1:5050/groq/questions", {
+        const data = await safeFetch("https://spacefigureai.onrender.com/groq/questions", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -153,7 +153,7 @@ function IntakeModal({ imageSrc, uploadId }) {
       };
 
       console.log("💾 Saving user answers:", payload);
-      const response = await safeFetch("http://127.0.0.1:5050/groq/save-answers", {
+      const response = await safeFetch("https://spacefigureai.onrender.com/groq/save-answers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -171,7 +171,7 @@ function IntakeModal({ imageSrc, uploadId }) {
   const analyzeDesign = async (finalAnswers) => {
     try {
       setLoading(true);
-      const data = await safeFetch("http://127.0.0.1:5050/groq/analyze", {
+      const data = await safeFetch("https://spacefigureai.onrender.com/groq/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
