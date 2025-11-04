@@ -183,7 +183,13 @@ function IntakeModal({ imageSrc, uploadId }) {
 
       setCaption(data.caption || "No caption provided.");
       setReasoning(data.reasoning || "No reasoning found.");
-      setSuggestion(data.suggestion || "No suggestions available.");
+
+      // ✅ Fix: Safely handle suggestion if it's an object
+      if (data.suggestion && typeof data.suggestion === "object") {
+        setSuggestion(data.suggestion);
+      } else {
+        setSuggestion(data.suggestion || "No suggestions available.");
+      }
     } catch (err) {
       console.error("Analysis error:", err);
       setError("Design reasoning analysis failed.");
@@ -248,7 +254,16 @@ function IntakeModal({ imageSrc, uploadId }) {
               </div>
               <div className="info-card">
                 <h4>Suggestions</h4>
-                <p>{suggestion}</p>
+                <p>
+                  {typeof suggestion === "object"
+                    ? Object.entries(suggestion).map(([key, value]) => (
+                        <div key={key}>
+                          <strong>{key}:</strong>{" "}
+                          {Array.isArray(value) ? value.join(", ") : String(value)}
+                        </div>
+                      ))
+                    : suggestion}
+                </p>
               </div>
 
               {caption && (

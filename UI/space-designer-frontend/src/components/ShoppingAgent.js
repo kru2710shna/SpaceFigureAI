@@ -1,73 +1,123 @@
 import React, { useEffect, useState } from "react";
-import "../styles/ShopingAgent.css";
+import "../styles/ShoppingAgent.css";
 import bgVideo from "../assets/BG_ML.mp4";
 import { useNavigate } from "react-router-dom";
 
 const ShoppingAgent = () => {
-  const [recommendations, setRecommendations] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [reasoning, setReasoning] = useState(null);
+  const [data, setData] = useState(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const safeFetch = async (url, options = {}) => {
+    const res = await fetch(url, options);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  };
+
   useEffect(() => {
-    const fetchRecommendations = async () => {
+    const fetchAll = async () => {
       try {
         setLoading(true);
-        const res = await fetch("http://127.0.0.1:5050/groq/shopping");
-        if (!res.ok) throw new Error("Failed to fetch shopping data");
-        const data = await res.json();
-        setRecommendations(data.items || []);
+        const reasoningData = await safeFetch("http://127.0.0.1:5050/groq/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            image_url:
+              "http://127.0.0.1:5050/agents/outputs/latest_detected_blueprint.jpg",
+            intake: { style: "Modern", budget: "$5k–$10k", lighting: "Natural" },
+          }),
+        });
+        setReasoning(reasoningData);
+
+        const shoppingData = await safeFetch("http://127.0.0.1:5050/groq/shopping");
+        setData(shoppingData);
       } catch (err) {
-        setError(err.message);
+        console.error("❌ Error:", err);
+        setError("Failed to load data. Please retry.");
       } finally {
         setLoading(false);
       }
     };
-    fetchRecommendations();
+    fetchAll();
   }, []);
 
   return (
     <div className="shopping-agent-container">
       <video className="bg-video" src={bgVideo} autoPlay loop muted playsInline />
       <div className="content-overlay fade-in">
-
-        {/* ===== Hero Section ===== */}
-        <header className="intro-section">
-          <h1 className="main-title">🛍️ Welcome to the Shopping Agent</h1>
-          <p className="main-subtitle">
-            Your AI-powered design companion for personalized furniture recommendations.
-          </p>
-          <p className="description">
-            This intelligent agent interprets your blueprint, lighting, and design preferences
-            to curate furniture that complements your layout, space, and aesthetic perfectly.
-          </p>
-          <p className="description">
-            Sit back while the system blends spatial reasoning with modern design insights to
-            bring harmony, comfort, and elegance to your dream interior.
+        <header className="hero-section">
+          <h1 className="main-title">🛋️ Smart Design & Shopping Agent</h1>
+          <p className="hero-desc">
+            AI-powered room-aware recommendations inspired by your architectural blueprint.
           </p>
         </header>
 
-        {/* ===== Recommendation Cards ===== */}
-        {loading && <p className="loading">Fetching curated pieces...</p>}
-        {error && <p className="error">{error}</p>}
+        {loading && <p className="status-msg">Analyzing your space...</p>}
+        {error && <p className="error-msg">{error}</p>}
 
-        <div className="items-grid">
-          {recommendations.map((item, index) => (
-            <div key={index} className="item-card">
-              <img src={item.image_url} alt={item.name} />
-              <h3>{item.name}</h3>
-              <p>{item.category}</p>
-              <p><strong>${item.price}</strong></p>
-              <a href={item.store_url} target="_blank" rel="noreferrer">View Item</a>
-            </div>
-          ))}
+        {reasoning && (
+          <section className="summary-section">
+            <h2>🧠 Design Summary</h2>
+            <div className="divider"></div>
+            <p><strong>Caption:</strong> {reasoning.caption}</p>
+            <p><strong>Reasoning:</strong> {reasoning.reasoning}</p>
+            <p><strong>Suggestions:</strong> {reasoning.suggestion}</p>
+          </section>
+        )}
+
+        {data && (
+          <section className="recommendation-section">
+            <h2>🏠 Room-Based Recommendations</h2>
+            <div className="divider"></div>
+
+            {Object.entries(data.rooms).map(([room, items]) => (
+              <div className="room-block" key={room}>
+                <h3 className="room-title">
+                  <span>{room.charAt(0).toUpperCase() + room.slice(1)}</span>
+                </h3>
+                <div className="room-grid">
+                  {items.length > 0 ? (
+                    items.map((item, i) => (
+                      <div className="card" key={i}>
+                        <h4>{item.name}</h4>
+                        <p className="category">{item.category}</p>
+                        <p className="price">${item.price}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="no-items">No items found for this room.</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </section>
+        )}
+
+        <div className="shopping-links">
+          <p>Explore similar items on:</p>
+          <div className="link-row">
+            <a
+              href="https://www.amazon.com/s?k=furniture+modern+home+decor"
+              target="_blank"
+              rel="noreferrer"
+              className="external-link amazon"
+            >
+              🛒 Amazon
+            </a>
+            <a
+              href="https://www.ikea.com/us/en/cat/furniture-fu001/"
+              target="_blank"
+              rel="noreferrer"
+              className="external-link ikea"
+            >
+              🏠 IKEA
+            </a>
+          </div>
         </div>
 
-        {/* ===== Floating Navigation Button ===== */}
-        <button
-          className="floating-btn"
-          onClick={() => navigate("/tour-guide")}
-        >
+        <button className="back-btn" onClick={() => navigate("/tour-guide")}>
           ← Back to Design Overview
         </button>
       </div>

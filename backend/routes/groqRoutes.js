@@ -8,7 +8,7 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 import csv from "csv-parser";
 import Groq from "groq-sdk";
-
+import csvParser from "csv-parser";
 
 dotenv.config();
 const router = express.Router();
@@ -179,14 +179,20 @@ Now ask the next question only: ${questions[step]}`,
     res.status(500).json({ error: "Question generation failed." });
   }
 });
-
 // ====================================================
 // 🔹 POST /groq/analyze → Caption, Reasoning, Suggestions
 // ====================================================
 router.post("/analyze", async (req, res) => {
   try {
-    const { image_url, intake } = req.body;
-    if (!image_url) return res.status(400).json({ error: "Missing image_url" });
+    // ✅ Graceful fallback for image_url and intake
+    let { image_url, intake } = req.body || {};
+    if (!image_url) {
+      image_url = "http://127.0.0.1:5050/agents/outputs/latest_detected_blueprint.jpg";
+      console.warn("⚠️ Missing image_url — using latest_detected_blueprint.jpg as fallback");
+    }
+    if (!intake) {
+      intake = { style: "Modern", budget: "$5k–$10k", lighting: "Natural" };
+    }
 
     const messages = [
       {
@@ -207,6 +213,7 @@ Output example:
       },
     ];
 
+    // === Primary LLM Call ===
     const data = await callGroq(messages, "analyze");
     let raw = data?.choices?.[0]?.message?.content?.trim() || "{}";
     raw = raw.replace(/```json|```/g, "").trim();
@@ -214,7 +221,8 @@ Output example:
     let parsed;
     try {
       parsed = JSON.parse(raw);
-    } catch {
+    } catch (err) {
+      console.warn("⚠️ JSON parse failed, using fallback:", err.message);
       parsed = {
         caption: "Unable to parse caption.",
         reasoning: "Raw model output: " + raw,
@@ -222,7 +230,7 @@ Output example:
       };
     }
 
-    // Auto-generate suggestions if missing
+    // === Auto-Generate Suggestions if Missing or Too Short ===
     if (!parsed.suggestion || parsed.suggestion.length < 10) {
       try {
         const suggestionPrompt = [
@@ -235,21 +243,38 @@ Output example:
             content: `Blueprint context:\n${image_url}\n\nReasoning:\n${parsed.reasoning}\nGenerate 3 concise design improvement suggestions.`,
           },
         ];
+
         const suggestionData = await callGroq(suggestionPrompt, "questions");
-        parsed.suggestion =
-          suggestionData?.choices?.[0]?.message?.content?.trim() ||
-          "No structured suggestions found.";
+        const suggestionText = suggestionData?.choices?.[0]?.message?.content?.trim();
+        if (suggestionText && suggestionText.length > 10) {
+          parsed.suggestion = suggestionText.replace(/```json|```/g, "").trim();
+        } else {
+          parsed.suggestion = "No structured suggestions found.";
+        }
       } catch (e) {
         console.error("⚠️ Suggestion fallback failed:", e.message);
+        parsed.suggestion = "No structured suggestions found.";
       }
     }
 
+    // === Ensure all fields exist (frontend safety) ===
+    parsed.caption = parsed.caption || "No caption generated.";
+    parsed.reasoning = parsed.reasoning || "No reasoning generated.";
+    parsed.suggestion = parsed.suggestion || "No suggestions generated.";
+
+    // ✅ Response
     res.json(parsed);
+
   } catch (err) {
     console.error("❌ /groq/analyze error:", err.message);
-    res.status(500).json({ error: "Groq analysis failed." });
+    res.status(500).json({
+      caption: "Analysis unavailable.",
+      reasoning: "Error during AI reasoning.",
+      suggestion: "Please retry or upload a valid blueprint.",
+    });
   }
 });
+
 
 // ====================================================
 // 🔹 POST /groq/run → Math + Depth + Detection Reasoning
@@ -319,39 +344,67 @@ fs.createReadStream(csvPath)
   .on("data", (row) => furnitureData.push(row))
   .on("end", () => console.log("✅ Furniture dataset loaded"));
 
+
+
 // 🧠 Shopping reasoning route
+// ====================================================
+// 🔹 GET /groq/shopping → CSV + AI-Synthesized Recommendations
+// ====================================================
+// =======================
+// 🧠 Room-Aware Shopping
+// =======================
 router.get("/shopping", async (req, res) => {
   try {
-    // Load user preferences
-    const answerPath = path.join(process.cwd(), "answers/answer.json");
-    const userAnswers = JSON.parse(fs.readFileSync(answerPath, "utf-8"));
+    const csvPath = path.join(process.cwd(), "../data/furniture_dataset.csv");
+    const detectionsPath = path.join(
+      process.cwd(),
+      "agents/outputs/1762237581461-test_detections_blueprint.json"
+    );
 
-    const prompt = `
-You are an interior shopping assistant. Based on the user preferences:
-Style: ${userAnswers.style}
-Budget: ${userAnswers.budget}
-Lighting preference: ${userAnswers.lighting}
-and using the provided furniture dataset (with fields like name, category, price, style, color, size),
-recommend 6-8 furniture items that fit the user's space aesthetics and price range.
-Respond in JSON array format:
-[{ "name": "...", "category": "...", "price": "...", "image_url": "...", "store_url": "..." }]
-    `;
+    // Load CSV
+    let furniture = [];
+    if (fs.existsSync(csvPath)) {
+      const raw = fs.readFileSync(csvPath, "utf-8").split("\n").slice(1);
+      for (const line of raw) {
+        const cols = line.split(",").map((c) => c.trim());
+        if (cols.length < 10) continue;
+        const [type, style, color, material, shape, details, room_type, price_range] = cols;
+        furniture.push({ type, style, room_type, price_range });
+      }
+    }
 
-    const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile", // Updated Groq model
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.4,
-      max_tokens: 1024,
+    // Load detected blueprint objects (like Door6, Window14…)
+    let objectSummary = {};
+    if (fs.existsSync(detectionsPath)) {
+      const detectionData = JSON.parse(fs.readFileSync(detectionsPath, "utf-8"));
+      detectionData.objects.forEach((o) => {
+        objectSummary[o.label] = (objectSummary[o.label] || 0) + 1;
+      });
+    }
+
+    // Group recommendations per room type
+    const grouped = {};
+    for (const room of ["living", "kitchen", "dining", "bedroom", "office", "kids"]) {
+      grouped[room] = furniture
+        .filter((f) => f.room_type.toLowerCase().includes(room))
+        .slice(0, 3)
+        .map((f) => ({
+          name: `${f.style} ${f.type}`,
+          price: f.price_range || "Standard",
+          category: room.charAt(0).toUpperCase() + room.slice(1),
+        }));
+    }
+
+    // Add summary info
+    res.json({
+      summary: objectSummary,
+      rooms: grouped,
     });
-
-    const response = completion.choices[0].message.content;
-    res.json({ items: JSON.parse(response) });
   } catch (err) {
-    console.error("❌ Groq Shopping Agent Error:", err.message);
-    res.status(500).json({ error: "Shopping Agent failed to reason." });
+    console.error("❌ Room-aware shopping failed:", err.message);
+    res.status(500).json({ error: "Failed to load CSV or detection data." });
   }
 });
-
 
 router.post("/save-answers", async (req, res) => {
   try {

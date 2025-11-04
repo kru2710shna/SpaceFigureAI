@@ -13,7 +13,6 @@ const Image = ImageJS.Image;
 
 
 // ------------------- Routes -------------------
-import geminiRoutes from "./routes/geminiRoutes.js";
 import groqRoutes from "./routes/groqRoutes.js";
 import tourGuideRoutes from "./routes/tourGuideRoutes.js";
 import depthRoutes from "./routes/depthRoutes.js";
@@ -151,7 +150,6 @@ if (fs.existsSync(agentsOutputsDir)) {
 // ----------------------------------------------------
 // 🔗 Routes
 // ----------------------------------------------------
-app.use("/gemini", geminiRoutes);
 app.use("/groq", groqRoutes);
 app.use("/tour-guide", tourGuideRoutes);
 app.use("/depth", depthRoutes);

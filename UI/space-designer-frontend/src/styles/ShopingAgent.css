@@ -1,264 +1,232 @@
-/* ================================
-   🛋️ Shopping Agent Page Styles
-   ================================ */
+/* ==============================================
+   🛋️ Smart Design & Shopping Agent - Modern UI
+   ============================================== */
 
 .shopping-agent-container {
   position: relative;
-  height: 100vh;
-  width: 100%;
-  overflow-y: auto;
+  min-height: 100vh;
   color: #fff;
   font-family: "Inter", sans-serif;
+  overflow-y: auto;
+  scroll-behavior: smooth;
 }
 
-/* Background video */
-.shopping-agent-container .bg-video {
+.bg-video {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  opacity: 0.25;
   z-index: 0;
 }
 
-/* Main overlay content */
 .content-overlay {
   position: relative;
   z-index: 2;
-  padding: 80px 8%;
-  min-height: 100vh;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(1px);
-  animation: fadeIn 1s ease-in;
+  padding: 4rem 8%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* Headings */
-.content-overlay h1 {
-  font-size: 2.8rem;
-  margin-bottom: 0.5rem;
+/* === Hero Section === */
+.hero-section {
   text-align: center;
-  letter-spacing: 0.5px;
-}
-
-.content-overlay .subtitle {
-  text-align: center;
-  color: #dcdcdc;
-  font-size: 1.1rem;
-  margin-bottom: 2rem;
-}
-
-/* Loading & error messages */
-.loading,
-.error {
-  text-align: center;
-  font-size: 1.1rem;
-  color: #ccc;
-  margin-top: 1rem;
-}
-
-.error {
-  color: #ff7878;
-}
-
-/* Grid layout for product items */
-.items-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 2rem;
-  padding: 20px 0 60px;
-}
-
-/* Individual item card */
-.item-card {
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 18px;
-  padding: 20px;
-  text-align: center;
-  color: #f5f5f5;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-}
-
-.item-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
-}
-
-/* Product image */
-.item-card img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 14px;
-  margin-bottom: 1rem;
-  transition: transform 0.4s ease;
-}
-
-.item-card:hover img {
-  transform: scale(1.04);
-}
-
-/* Product title */
-.item-card h3 {
-  font-size: 1.2rem;
-  margin: 0.3rem 0;
-  color: #ffffff;
-}
-
-/* Category & price */
-.item-card p {
-  font-size: 0.95rem;
-  color: #d0d0d0;
-  margin: 0.2rem 0;
-}
-
-.item-card strong {
-  color: #c8a2ff;
-}
-
-/* External store link */
-.item-card a {
-  display: inline-block;
-  margin-top: 0.8rem;
-  padding: 10px 16px;
-  border-radius: 10px;
-  text-decoration: none;
-  color: #fff;
-  font-weight: 500;
-  background: linear-gradient(135deg, #9b5de5, #6a00f4);
-  transition: background 0.3s ease, transform 0.2s ease;
-}
-
-.item-card a:hover {
-  background: linear-gradient(135deg, #b86bff, #8241ff);
-  transform: scale(1.05);
-}
-
-/* Fade animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .content-overlay {
-    padding: 60px 5%;
-  }
-
-  .content-overlay h1 {
-    font-size: 2rem;
-  }
-
-  .items-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  }
-
-  .item-card img {
-    height: 180px;
-  }
-}
-
-
-/* ===== Intro Section ===== */
-.intro-section {
-  text-align: center;
-  max-width: 850px;
-  margin: 0 auto 3rem auto;
-  padding-top: 60px;
-  animation: fadeIn 1.2s ease;
+  margin-bottom: 3rem;
 }
 
 .main-title {
-  font-size: 3rem;
-  color: #ffffff;
+  font-size: 2.8rem;
   font-weight: 700;
-  margin-bottom: 0.6rem;
-}
-
-.main-subtitle {
-  font-size: 1.25rem;
-  color: #cfcfcf;
-  margin-bottom: 1.2rem;
-}
-
-.description {
-  font-size: 1.05rem;
-  line-height: 1.6;
-  color: #d3d3d3;
+  background: linear-gradient(135deg, #a87fff, #7b3ff7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   margin-bottom: 0.8rem;
 }
 
-/* ===== Bottom Navigation Button ===== */
-.bottom-btn-container {
+.hero-desc {
+  color: #d4d4d4;
+  max-width: 750px;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 0 auto;
+}
+
+/* === Summary Section === */
+.summary-section {
+  max-width: 850px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 2rem;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+  margin-bottom: 3.5rem;
+  text-align: left;
+  animation: fadeIn 1s ease;
+}
+
+.summary-section h2 {
+  color: #cbb4ff;
+  margin-bottom: 0.5rem;
+}
+
+.divider {
+  height: 3px;
+  width: 70px;
+  background: linear-gradient(135deg, #9b5de5, #6a00f4);
+  border-radius: 3px;
+  margin-bottom: 1.5rem;
+}
+
+/* === Recommendation Section === */
+.recommendation-section {
+  width: 100%;
+  max-width: 1100px;
   text-align: center;
-  margin: 60px 0 40px;
+  margin-bottom: 3rem;
 }
 
-.back-btn {
-  background: linear-gradient(135deg, #8a4fff, #6b00ff);
-  border: none;
-  color: #fff;
-  padding: 14px 28px;
-  font-size: 1rem;
+.recommendation-section h2 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #e2c4ff;
+  margin-bottom: 1rem;
+}
+
+.room-block {
+  margin-bottom: 3rem;
+  text-align: left;
+}
+
+.room-title {
+  display: inline-block;
+  padding: 10px 22px;
+  background: linear-gradient(135deg, #8e2de2, #4a00e0);
   border-radius: 12px;
-  cursor: pointer;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  transition: transform 0.25s ease, background 0.25s ease;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-}
-
-.back-btn:hover {
-  transform: translateY(-3px);
-  background: linear-gradient(135deg, #a469ff, #7c2cff);
-}
-
-/* Responsive tweaks */
-@media (max-width: 768px) {
-  .main-title {
-    font-size: 2.1rem;
-  }
-
-  .description {
-    font-size: 0.95rem;
-  }
-
-  .back-btn {
-    width: 80%;
-  }
-}
-
-/* ===== Floating Button (always visible) ===== */
-.floating-btn {
-  position: fixed;
-  bottom: 40px;
-  right: 40px;
-  background: linear-gradient(135deg, #a066ff, #6b00ff);
+  font-size: 1.3rem;
+  font-weight: 600;
   color: #fff;
+  margin-bottom: 1.2rem;
+}
+
+.room-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+/* === Cards === */
+.card {
+  flex: 1 1 260px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.card h4 {
+  font-size: 1.15rem;
+  margin-bottom: 0.5rem;
+}
+
+.category {
+  color: #cfcfcf;
+  font-size: 0.95rem;
+}
+
+.price {
+  color: #d2a8ff;
+  font-weight: 600;
+  margin-top: 0.4rem;
+}
+
+.no-items {
+  color: #aaa;
+  font-style: italic;
+}
+
+/* === External Links === */
+.shopping-links {
+  text-align: center;
+  margin-top: 2rem;
+  margin-bottom: 3rem;
+}
+
+.shopping-links p {
+  color: #d4d4d4;
+  font-size: 1rem;
+  margin-bottom: 0.8rem;
+}
+
+.link-row {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.external-link {
+  display: inline-block;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  color: white;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.external-link.amazon {
+  background: linear-gradient(135deg, #ff9900, #ff6600);
+}
+
+.external-link.ikea {
+  background: linear-gradient(135deg, #0051ba, #003580);
+}
+
+.external-link:hover {
+  transform: scale(1.05);
+  filter: brightness(1.2);
+}
+
+/* === Back Button === */
+.back-btn {
+  background: linear-gradient(135deg, #a066ff, #6b00ff);
   border: none;
-  padding: 14px 20px;
+  color: #fff;
+  font-weight: 600;
+  padding: 14px 24px;
   border-radius: 14px;
   cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: 600;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-  transition: transform 0.3s ease, background 0.3s ease;
-  z-index: 999;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
+  transition: transform 0.3s ease;
+}
+.back-btn:hover {
+  transform: scale(1.08);
 }
 
-.floating-btn:hover {
-  transform: scale(1.08);
-  background: linear-gradient(135deg, #b783ff, #7b2cff);
+/* === States === */
+.status-msg,
+.error-msg {
+  text-align: center;
+  margin: 1rem 0;
+  font-size: 1.1rem;
+}
+.error-msg {
+  color: #ff8585;
+}
+
+/* === Animations === */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
 }

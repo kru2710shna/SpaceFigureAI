@@ -145,11 +145,11 @@ const TourGuideAgent = () => {
             </>
           )}
         </div>
-        <div className="shopping-btn-container fade-in">
-          <button className="render-btn" onClick={() => navigate("/shopping-agent")}>
-            🛍️ Go to Shopping Agent
-          </button>
-        </div>
+      </div>
+      <div className="shopping-btn-container fade-in">
+        <button className="render-btn" onClick={() => navigate("/shopping-agent")}>
+          🛍️ Go to Shopping Agent
+        </button>
       </div>
     </div>
   );
