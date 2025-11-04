@@ -1,3 +1,7 @@
+/* ==========================================================
+   🛰️ Tour Guide Agent - Modern Responsive UI
+   ========================================================== */
+
 /* ====== Layout Container ====== */
 .tourguide-container {
   position: relative;
@@ -5,16 +9,20 @@
   width: 100%;
   overflow-x: hidden;
   font-family: "Poppins", sans-serif;
+  background-color: #050510;
+  scroll-behavior: smooth;
 }
 
 /* ====== Background Video ====== */
 .bg-video {
   position: fixed;
-  top: 0; left: 0;
+  top: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
   object-fit: cover;
   z-index: 0;
+  transition: opacity 0.5s ease;
 }
 
 /* ====== Overlay Content ====== */
@@ -25,42 +33,50 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(5, 5, 10, 0.45);
+  background: rgba(5, 5, 10, 0.5);
   color: #f1f1f1;
   text-align: center;
+  padding: 2rem 1rem;
 }
 
-/* ====== Panel ====== */
+/* ====== Glass Panel ====== */
 .panel {
   width: 90%;
   max-width: 1080px;
-  background: rgba(20, 20, 40, 0.8);
+  background: rgba(20, 20, 40, 0.85);
   border-radius: 20px;
-  padding: 40px 50px;
+  padding: 3rem 4rem;
   box-shadow: 0 0 50px rgba(130, 100, 255, 0.25);
-  animation: fadeIn 1s ease-in;
+  animation: fadeIn 1s ease-in-out;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* ====== Typography ====== */
 .title {
-  font-size: 2.6rem;
+  font-size: 2.8rem;
   background: linear-gradient(90deg, #a78bfa, #7dd3fc);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 700;
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
 }
 
 .subtitle {
   color: #cbd5e1;
-  font-size: 1.1rem;
-  margin-top: 4px;
-  margin-bottom: 20px;
+  font-size: 1.15rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .status {
-  font-size: 1rem;
+  font-size: 1.05rem;
   color: #e0e7ff;
-  margin-bottom: 30px;
+  margin-bottom: 2rem;
+  font-weight: 400;
 }
 
 /* ====== Buttons ====== */
@@ -68,40 +84,61 @@
   background: linear-gradient(90deg, #6366f1, #8b5cf6);
   color: white;
   border: none;
-  padding: 14px 34px;
+  padding: 14px 36px;
   border-radius: 12px;
   cursor: pointer;
   font-size: 1.1rem;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: 0.3px;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.35);
 }
 
 .btn:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 25px rgba(147, 197, 253, 0.4);
+  box-shadow: 0 0 25px rgba(147, 197, 253, 0.45);
+}
+
+.btn:active {
+  transform: scale(0.98);
 }
 
 /* ====== Loader & Error ====== */
 .loader {
   color: #a5b4fc;
   font-style: italic;
+  font-size: 1rem;
+  margin-top: 1.5rem;
 }
 
 .error {
   color: #f87171;
-  background: rgba(60, 0, 0, 0.4);
-  padding: 10px 16px;
+  background: rgba(90, 0, 0, 0.4);
+  padding: 12px 18px;
   border-radius: 10px;
-  margin: 12px auto;
+  border: 1px solid rgba(255, 100, 100, 0.3);
+  max-width: 600px;
+  margin: 1.5rem auto;
+  font-size: 1rem;
 }
 
 /* ====== Results Section ====== */
 .results {
-  margin-top: 30px;
+  margin-top: 2rem;
   text-align: left;
-  max-height: 65vh;
+  max-height: 60vh;
   overflow-y: auto;
-  padding-right: 10px;
+  padding-right: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: #7c3aed rgba(255, 255, 255, 0.05);
+}
+
+.results::-webkit-scrollbar {
+  width: 6px;
+}
+.results::-webkit-scrollbar-thumb {
+  background: #7c3aed;
+  border-radius: 6px;
 }
 
 /* ====== Mathematical Agent Section ====== */
@@ -113,22 +150,26 @@
   padding: 50px 30px;
   text-align: left;
   border-radius: 20px 20px 0 0;
+  box-shadow: 0 -5px 25px rgba(108, 99, 255, 0.15);
 }
 
-/* ====== Animation ====== */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.fade-in {
-  animation: fadeIn 1s ease-in forwards;
+.math-section h3 {
+  color: #4b3fff;
+  font-weight: 700;
+  margin-bottom: 1rem;
 }
 
+.math-section p {
+  color: #333;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+/* ====== Render Button Section ====== */
 .render-btn-container {
   display: flex;
   justify-content: center;
-  margin-top: 40px;
-  margin-bottom: 40px;
+  margin: 3rem 0;
 }
 
 .render-btn {
@@ -136,9 +177,9 @@
   color: #fff;
   font-size: 1.1rem;
   font-weight: 600;
-  padding: 14px 32px;
+  padding: 14px 36px;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.25s ease-in-out;
   box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4);
@@ -146,5 +187,122 @@
 
 .render-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(138, 43, 226, 0.6);
+  box-shadow: 0 6px 22px rgba(138, 43, 226, 0.6);
+}
+
+.render-btn:active {
+  transform: translateY(0);
+}
+
+/* ====== Fade Animation ====== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 1s ease-in forwards;
+}
+
+/* ==========================================================
+   📱 Responsive Design
+   ========================================================== */
+
+/* --- Tablets (≤ 1024px) --- */
+@media (max-width: 1024px) {
+  .panel {
+    padding: 2.5rem 3rem;
+  }
+
+  .title {
+    font-size: 2.4rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .btn {
+    padding: 12px 28px;
+  }
+}
+
+/* --- Mobile Landscape (≤ 768px) --- */
+@media (max-width: 768px) {
+  .panel {
+    padding: 2rem 2.2rem;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 0.95rem;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  .render-btn-container {
+    flex-direction: column;
+  }
+
+  .render-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  .results {
+    max-height: 55vh;
+  }
+}
+
+/* --- Mobile Portrait (≤ 480px) --- */
+@media (max-width: 480px) {
+  .content-overlay {
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+
+  .panel {
+    width: 95%;
+    padding: 1.6rem 1.4rem;
+    border-radius: 16px;
+  }
+
+  .title {
+    font-size: 1.8rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .status {
+    font-size: 0.95rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .btn,
+  .render-btn {
+    font-size: 1rem;
+    padding: 12px;
+    width: 100%;
+  }
+
+  .math-section {
+    padding: 30px 18px;
+  }
 }

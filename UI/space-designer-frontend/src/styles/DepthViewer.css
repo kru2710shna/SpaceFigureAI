@@ -1,3 +1,7 @@
+/* ===========================================
+   🧭 3D Viewer – Flexible Responsive Styling
+   =========================================== */
+
 .viewer-container {
   position: relative;
   width: 100vw;
@@ -5,27 +9,40 @@
   background-color: #000;
   overflow: hidden;
   font-family: "Inter", sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
+/* === Canvas === */
 .viewer-canvas {
   width: 100%;
   height: 100%;
+  display: block;
+  object-fit: cover;
 }
 
+/* === Centered State (Loading / Error / Empty) === */
 .center-screen {
   background: #000;
-  height: 100vh;
+  height: 100%;
+  width: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
   color: #fff;
+  text-align: center;
+  padding: 1rem;
 }
 
 .center-screen.error {
   color: #ff6b6b;
 }
 
+/* === Toggle Button === */
 .toggle-btn {
   position: absolute;
   top: 20px;
@@ -40,6 +57,7 @@
   font-weight: 500;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s ease, box-shadow 0.3s ease;
+  z-index: 10;
 }
 
 .toggle-btn:hover {
@@ -47,6 +65,29 @@
   box-shadow: 0 6px 12px rgba(108, 92, 231, 0.4);
 }
 
+/* === Back Button === */
+.back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  backdrop-filter: blur(5px);
+  transition: background 0.2s ease, transform 0.2s ease;
+  z-index: 10;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
+
+/* === Slider Container === */
 .slider-container {
   position: absolute;
   bottom: 25px;
@@ -54,34 +95,99 @@
   transform: translateX(-50%);
   text-align: center;
   color: #fff;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .slider-container label {
   display: block;
   margin-bottom: 8px;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   opacity: 0.9;
 }
 
 .slider-container input[type="range"] {
   width: 320px;
+  max-width: 80vw;
   accent-color: #6c5ce7;
   cursor: pointer;
 }
-.back-btn {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  background: rgba(255,255,255,0.1);
-  color: white;
-  border: 1px solid rgba(255,255,255,0.3);
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  backdrop-filter: blur(5px);
-  transition: background 0.2s ease;
+
+/* =====================================
+   📱 Responsive Adjustments
+   ===================================== */
+
+/* --- Tablet / Small Laptops --- */
+@media (max-width: 1024px) {
+  .toggle-btn,
+  .back-btn {
+    padding: 8px 14px;
+    font-size: 0.9rem;
+  }
+
+  .slider-container {
+    padding: 0.8rem 1rem;
+  }
+
+  .slider-container input[type="range"] {
+    width: 260px;
+  }
 }
-.back-btn:hover {
-  background: rgba(255,255,255,0.25);
+
+/* --- Mobile Landscape & iPad Mini --- */
+@media (max-width: 768px) {
+  .center-screen {
+    font-size: 1.3rem;
+    padding: 0.5rem;
+  }
+
+  .toggle-btn,
+  .back-btn {
+    top: 15px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+
+  .slider-container {
+    bottom: 20px;
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+  }
+
+  .slider-container label {
+    font-size: 0.85rem;
+  }
+
+  .slider-container input[type="range"] {
+    width: 220px;
+  }
+}
+
+/* --- Mobile Portrait --- */
+@media (max-width: 480px) {
+  .center-screen {
+    font-size: 1.1rem;
+  }
+
+  .toggle-btn,
+  .back-btn {
+    top: 12px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+
+  .slider-container {
+    bottom: 18px;
+    width: 90%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.8rem;
+  }
+
+  .slider-container input[type="range"] {
+    width: 100%;
+  }
 }

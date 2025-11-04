@@ -1,4 +1,338 @@
-/* --- Upload Form Modern Glass UI --- */
+/* ==========================================================
+   🌌 Modern Responsive Layout — Adaptive for All Devices
+   ========================================================== */
+
+/* --- RESET --- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+html, body {
+  font-family: "Inter", sans-serif;
+  background: #000;
+  color: #fff;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+/* --- ROOT CONTAINER --- */
+.app-root {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* ==========================================================
+   🪩 HERO SECTION
+   ========================================================== */
+.hero-section {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.background-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  transition: filter 0.4s ease;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 1));
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  text-align: center;
+  padding: 0 1.5rem;
+  animation: fadeInUp 1.2s ease-in-out;
+}
+
+.hero-content h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.6rem;
+  background: linear-gradient(90deg, #bca9ff, #6c63ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-content p {
+  font-size: 1.2rem;
+  color: #d9d9d9;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.75);
+  animation: fadeInUp 2s infinite alternate;
+}
+
+/* ==========================================================
+   🧩 ARCHITECTURE SECTION
+   ========================================================== */
+.architecture-section {
+  background: #000;
+  padding: 8rem 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.arch-container {
+  max-width: 1000px;
+  text-align: left;
+  animation: fadeInUp 1.4s ease;
+}
+
+.arch-container h2 {
+  font-size: 2.4rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  background: linear-gradient(90deg, #a78bfa, #7dd3fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.arch-container .subtitle {
+  color: #bcbcbc;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.flow-diagram {
+  font-family: "Courier New", monospace;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #aab0ff;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 3px solid #7b68ee;
+  padding: 1.5rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 0 20px rgba(123, 104, 238, 0.15);
+  overflow-x: auto;
+}
+
+.system-summary h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.8rem;
+  color: #c5c5ff;
+}
+
+.system-summary p,
+.system-summary li {
+  color: #d9d9d9;
+  line-height: 1.7;
+}
+
+.system-summary ul {
+  margin-top: 1rem;
+  padding-left: 1.5rem;
+}
+
+/* ==========================================================
+   📤 UPLOAD SECTION
+   ========================================================== */
+.upload-section {
+  background: #000;
+  padding: 8rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.upload-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  max-width: 700px;
+  animation: fadeInUp 1.4s ease-in-out;
+}
+
+.upload-header h2 {
+  font-size: 2.1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  background: linear-gradient(90deg, #c39eff, #8a5cff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.upload-header p {
+  color: #bcbcbc;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* ==========================================================
+   ✨ ANIMATIONS
+   ========================================================== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================
+   📱 RESPONSIVE DESIGN
+   ========================================================== */
+
+/* --- Large Tablets (≤ 1024px) --- */
+@media (max-width: 1024px) {
+  .architecture-section,
+  .upload-section {
+    padding: 6rem 2rem;
+  }
+
+  .hero-content h1 {
+    font-size: 2.5rem;
+  }
+
+  .hero-content p {
+    font-size: 1.05rem;
+  }
+
+  .arch-container h2 {
+    font-size: 2rem;
+  }
+
+  .flow-diagram {
+    font-size: 0.95rem;
+  }
+}
+
+/* --- Tablets & Small Laptops (≤ 768px) --- */
+@media (max-width: 768px) {
+  .hero-content {
+    padding: 0 1rem;
+  }
+
+  .hero-content h1 {
+    font-size: 2.1rem;
+  }
+
+  .hero-content p {
+    font-size: 0.95rem;
+  }
+
+  .architecture-section,
+  .upload-section {
+    padding: 4rem 1.5rem;
+  }
+
+  .arch-container {
+    text-align: center;
+  }
+
+  .flow-diagram {
+    font-size: 0.9rem;
+    text-align: left;
+  }
+
+  .system-summary h3 {
+    font-size: 1.1rem;
+  }
+
+  .upload-header h2 {
+    font-size: 1.7rem;
+  }
+
+  .upload-header p {
+    font-size: 0.9rem;
+  }
+}
+
+/* --- Mobile Portrait (≤ 480px) --- */
+@media (max-width: 480px) {
+  .hero-content h1 {
+    font-size: 1.8rem;
+  }
+
+  .hero-content p {
+    font-size: 0.9rem;
+  }
+
+  .scroll-indicator {
+    bottom: 1.5rem;
+    font-size: 0.75rem;
+  }
+
+  .architecture-section,
+  .upload-section {
+    padding: 3.5rem 1rem;
+  }
+
+  .arch-container h2 {
+    font-size: 1.6rem;
+  }
+
+  .flow-diagram {
+    padding: 1rem;
+  }
+
+  .system-summary h3 {
+    font-size: 1rem;
+  }
+
+  .upload-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .upload-header p {
+    font-size: 0.85rem;
+  }
+}
+
+/* --- Ultra Small Devices (≤ 360px) --- */
+@media (max-width: 360px) {
+  .hero-content h1 {
+    font-size: 1.6rem;
+  }
+
+  .upload-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .upload-header p {
+    font-size: 0.8rem;
+  }
+}
+/* --- Upload Box --- */
 .upload-box {
   background: rgba(255, 255, 255, 0.12);
   padding: 2rem;
@@ -6,21 +340,19 @@
   text-align: center;
   backdrop-filter: blur(18px);
   width: 440px;
+  max-width: 95%;
   transition: all 0.4s ease;
   position: relative;
   z-index: 3;
-  border: 1px solid rgba(255, 255, 255, 0.3); /* 🌟 slim outer border */
+  border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 0 25px rgba(255, 255, 255, 0.1);
   animation: fadeIn 1.5s ease-in-out;
+  margin: 0 auto;
 }
 
-.upload-box:hover {
-  transform: scale(1.02);
-  box-shadow: 0 0 45px rgba(255, 255, 255, 0.25);
-}
-
-/* --- Drag & Drop Zone --- */
+/* --- Drop Zone --- */
 .drop-zone {
+  position: relative;
   border: 2px dashed rgba(255, 255, 255, 0.4);
   border-radius: 16px;
   padding: 2.5em 1.5em;
@@ -31,17 +363,26 @@
   backdrop-filter: blur(12px);
 }
 
-.drop-zone.active {
-  background: rgba(140, 110, 255, 0.15);
-  border-color: #b79aff;
-  transform: scale(1.03);
-  box-shadow: 0 0 25px rgba(150, 130, 255, 0.35);
+.drop-zone input[type="file"] {
+  position: absolute;
+  inset: 0; /* fill the container */
+  width: 100%;
+  height: 100%;
+  opacity: 0; /* invisible */
+  cursor: pointer;
+  z-index: 10; /* top clickable layer */
+}
+
+.drop-zone:hover {
+  background: rgba(150, 130, 255, 0.1);
+  border-color: #a78bfa;
+  transform: scale(1.02);
 }
 
 .upload-icon {
-  font-size: 3.2rem;
+  font-size: 3rem;
   color: #b79aff;
-  margin-bottom: 0.5em;
+  margin-bottom: 0.6em;
   transition: transform 0.3s ease, color 0.3s ease;
 }
 
@@ -55,40 +396,10 @@
   color: #eaeaea;
 }
 
-/* --- Preview Grid --- */
-.preview-grid {
-  margin-top: 20px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-  gap: 12px;
-}
-
-.preview-card {
-  position: relative;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  overflow: hidden;
-  text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.preview-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(150, 120, 255, 0.3);
-}
-
-.preview-img {
-  width: 100%;
-  height: 85px;
-  object-fit: cover;
-  border-radius: 10px;
-}
-
-.file-name {
-  font-size: 0.7rem;
-  margin-top: 5px;
-  color: #e8e8e8;
-  word-break: break-all;
+.file-count {
+  margin-top: 1rem;
+  color: #c9c9ff;
+  font-size: 0.9rem;
 }
 
 /* --- Upload Button --- */
@@ -104,75 +415,21 @@ button {
   font-size: 1rem;
   transition: all 0.3s ease;
   width: 100%;
+  box-shadow: 0 4px 15px rgba(140, 110, 255, 0.25);
 }
 
 button:hover {
   background: linear-gradient(90deg, #6959cd, #957eff);
   transform: translateY(-2px);
-  box-shadow: 0 0 25px rgba(140, 110, 255, 0.4);
 }
 
-/* --- Uploaded Gallery Section --- */
-.uploaded-gallery {
-  margin-top: 35px;
-  text-align: center;
-  color: #fff;
-  animation: fadeIn 1.5s ease-in-out;
-}
-
-.uploaded-gallery h3 {
-  font-size: 1.4rem;
-  margin-bottom: 20px;
-  font-weight: 600;
-  color: #d8d8ff;
-}
-
-.gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 15px;
-  padding: 0 10px;
-}
-
-.gallery-card {
-  border-radius: 10px;
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  position: relative;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.gallery-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 25px rgba(140, 110, 255, 0.4);
-}
-
-.gallery-img {
-  width: 100%;
-  height: 110px;
-  object-fit: cover;
-  border-radius: 10px;
-}
-
-/* --- Status Message --- */
-.status-msg {
-  margin-top: 20px;
-  color: #ffffff;
-  font-weight: 500;
-  font-size: 0.95rem;
-  letter-spacing: 0.4px;
-  animation: fadeIn 1.2s ease-in-out;
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* --- Animation --- */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
 }

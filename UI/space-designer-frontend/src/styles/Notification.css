@@ -1,20 +1,32 @@
+/* ======================================================
+   🔔 Notification Component - Modern Responsive Redesign
+   ====================================================== */
+
 .notification {
   position: fixed;
   top: 25px;
   right: 25px;
-  width: 300px;
-  background: rgba(30, 30, 45, 0.9);
+  width: 320px;
+  background: rgba(35, 35, 55, 0.9);
   color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 14px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-  padding: 16px 18px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  padding: 18px 20px;
   z-index: 9999;
-  animation: slideIn 0.5s ease-out forwards;
+  animation: slideIn 0.45s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   backdrop-filter: blur(15px);
   overflow: hidden;
+  transition: all 0.3s ease;
 }
 
+.notification:hover {
+  border-color: rgba(160, 130, 255, 0.25);
+  box-shadow: 0 12px 35px rgba(120, 100, 255, 0.3);
+  transform: translateY(-3px);
+}
+
+/* === Entrance Animation === */
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -26,6 +38,7 @@
   }
 }
 
+/* === Header === */
 .notif-header {
   display: flex;
   justify-content: space-between;
@@ -34,58 +47,176 @@
 }
 
 .notif-header h4 {
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 600;
-  color: #e6e6ff;
+  color: #e0ddff;
+  letter-spacing: 0.3px;
 }
 
 .close-btn {
   background: transparent;
   border: none;
   color: #ccc;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   cursor: pointer;
-  transition: color 0.25s ease;
+  transition: color 0.25s ease, transform 0.2s ease;
 }
+
 .close-btn:hover {
   color: #fff;
+  transform: rotate(90deg);
 }
 
+/* === Preview Label === */
 .preview-label {
-  margin: 6px 0 8px 0;
-  font-size: 0.8rem;
-  color: #c6c6ff;
+  margin: 8px 0;
+  font-size: 0.85rem;
+  color: #b8b8ff;
+  letter-spacing: 0.2px;
 }
 
+/* === Notification Body === */
 .notif-body {
   text-align: center;
+  margin-top: 10px;
 }
 
 .notif-img {
   width: 100%;
-  height: 150px;
+  height: 160px;
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(255, 255, 255, 0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+.notif-img:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 20px rgba(120, 100, 255, 0.3);
+}
+
+/* === Actions (Retry, Dismiss, etc.) === */
 .notif-actions {
-  margin-top: 12px;
+  margin-top: 14px;
   text-align: right;
 }
 
 .retry-btn {
-  padding: 6px 12px;
+  padding: 8px 14px;
   background: linear-gradient(90deg, #7b68ee, #a088ff);
   color: #fff;
   border: none;
-  border-radius: 6px;
-  font-size: 0.85rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 3px 12px rgba(108, 99, 255, 0.3);
 }
+
 .retry-btn:hover {
   background: linear-gradient(90deg, #6959cd, #957eff);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 18px rgba(108, 99, 255, 0.4);
+}
+
+/* === Fade-out Animation === */
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(150px);
+  }
+}
+
+.notification.hide {
+  animation: slideOut 0.4s ease forwards;
+}
+
+/* ======================================================
+   📱 Responsive Adjustments
+   ====================================================== */
+
+/* --- Tablet & Mobile --- */
+@media (max-width: 900px) {
+  .notification {
+    right: 20px;
+    top: 20px;
+    width: 300px;
+    padding: 16px 18px;
+  }
+
+  .notif-img {
+    height: 150px;
+  }
+}
+
+/* --- Mobile Landscape --- */
+@media (max-width: 768px) {
+  .notification {
+    right: 15px;
+    top: 15px;
+    width: 280px;
+    border-radius: 14px;
+    padding: 15px;
+  }
+
+  .notif-header h4 {
+    font-size: 0.95rem;
+  }
+
+  .retry-btn {
+    font-size: 0.85rem;
+    padding: 7px 12px;
+  }
+}
+
+/* --- Mobile Portrait --- */
+@media (max-width: 480px) {
+  .notification {
+    top: auto;
+    bottom: 20px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: 90%;
+    border-radius: 18px;
+    padding: 14px 16px;
+    text-align: left;
+    animation: slideUp 0.45s ease-out forwards;
+  }
+
+  .notif-body {
+    margin-top: 8px;
+  }
+
+  .notif-img {
+    height: 140px;
+  }
+
+  .notif-actions {
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  .retry-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

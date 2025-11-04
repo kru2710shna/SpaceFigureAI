@@ -1,10 +1,16 @@
+/* ==============================
+   🧠 Global Styles & Responsiveness
+   ============================== */
+
 body {
   margin: 0;
-  overflow: hidden;
+  overflow-x: hidden;
   background-color: #121212;
   font-family: "Inter", sans-serif;
+  color: #fff;
 }
 
+/* === Buttons === */
 button {
   position: absolute;
   top: 20px;
@@ -19,13 +25,14 @@ button {
   font-size: 1rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
+
 .back-btn {
   position: absolute;
   top: 20px;
   left: 20px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   color: white;
-  border: 1px solid rgba(255,255,255,0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
@@ -34,5 +41,311 @@ button {
   transition: background 0.2s ease;
 }
 .back-btn:hover {
-  background: rgba(255,255,255,0.25);
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ==============================
+   📱 Responsive Layout Structure
+   ============================== */
+
+.shopping-page {
+  position: relative;
+  min-height: 100vh;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.background-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.15;
+  z-index: 0;
+}
+
+.overlay {
+  position: relative;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  padding: 3rem 8%;
+  text-align: center;
+}
+
+/* === Title Section === */
+.title-section h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #c39eff, #8a5cff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.6rem;
+}
+
+.title-section p {
+  font-size: 1.15rem;
+  color: #d4d4d4;
+  margin-bottom: 3rem;
+}
+
+/* === Design Summary === */
+.summary {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 850px;
+  margin: 0 auto 3.5rem auto;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+  text-align: left;
+}
+
+.summary h2 {
+  color: #cbb4ff;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.summary-block h3 {
+  color: #e4ccff;
+  margin-top: 1.2rem;
+  font-size: 1.2rem;
+}
+
+.summary-block p {
+  color: #d8d8d8;
+  line-height: 1.6;
+}
+
+.summary-block ol {
+  margin-top: 1rem;
+  padding-left: 1.5rem;
+  color: #d3c2ff;
+  line-height: 1.6;
+}
+
+/* === Rooms Section === */
+.rooms {
+  max-width: 1100px;
+  margin: 0 auto 4rem auto;
+}
+
+.rooms h2 {
+  font-size: 2rem;
+  color: #e2c4ff;
+  margin-bottom: 1.5rem;
+}
+
+.room {
+  margin-bottom: 3.5rem;
+  text-align: left;
+}
+
+.room h3 {
+  background: linear-gradient(135deg, #8e2de2, #4a00e0);
+  display: inline-block;
+  padding: 10px 22px;
+  border-radius: 12px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.room-explainer {
+  color: #ccc;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  max-width: 750px;
+}
+
+/* === Cards === */
+.item-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.4rem;
+}
+
+.item-card {
+  flex: 1 1 250px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  max-width: 310px;
+}
+
+.item-card:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-6px);
+}
+
+.item-card h4 {
+  font-size: 1.15rem;
+  margin-bottom: 0.4rem;
+  color: #fff;
+}
+
+.category {
+  color: #cfcfcf;
+  font-size: 0.95rem;
+}
+
+.price {
+  color: #d2a8ff;
+  font-weight: 600;
+  margin: 0.4rem 0;
+}
+
+.reason {
+  color: #bfbfbf;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* === External Links === */
+.shopping-links {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.shopping-links p {
+  color: #d4d4d4;
+  margin-bottom: 0.8rem;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.link {
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.link.amazon {
+  background: linear-gradient(135deg, #ff9900, #ff6600);
+}
+
+.link.ikea {
+  background: linear-gradient(135deg, #0051ba, #003580);
+}
+
+.link:hover {
+  transform: scale(1.05);
+  filter: brightness(1.2);
+}
+
+/* === Back Button === */
+.back-button {
+  margin: 3rem auto;
+  display: block;
+  background: linear-gradient(135deg, #a066ff, #6b00ff);
+  border: none;
+  color: #fff;
+  padding: 14px 28px;
+  border-radius: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+.back-button:hover {
+  transform: scale(1.08);
+}
+
+/* === Animations === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===============================
+   📱 Responsive Media Queries
+   =============================== */
+
+/* Tablets (iPad) */
+@media (max-width: 1024px) {
+  .overlay {
+    padding: 2.5rem 5%;
+  }
+  .title-section h1 {
+    font-size: 2.5rem;
+  }
+  .summary,
+  .rooms {
+    max-width: 90%;
+  }
+  .item-card {
+    flex: 1 1 45%;
+  }
+}
+
+/* Mobile Landscape & Small Tablets */
+@media (max-width: 768px) {
+  .title-section h1 {
+    font-size: 2rem;
+  }
+  .title-section p {
+    font-size: 1rem;
+  }
+  .summary {
+    padding: 1.5rem;
+  }
+  .item-card {
+    flex: 1 1 100%;
+    max-width: 90%;
+  }
+  .back-button {
+    padding: 12px 22px;
+    font-size: 0.95rem;
+  }
+}
+
+/* Mobile Portrait (Phones) */
+@media (max-width: 480px) {
+  .overlay {
+    padding: 2rem 4%;
+  }
+  .title-section h1 {
+    font-size: 1.7rem;
+    line-height: 1.3;
+  }
+  .title-section p {
+    font-size: 0.95rem;
+  }
+  .summary {
+    padding: 1rem;
+  }
+  .room h3 {
+    font-size: 1.1rem;
+  }
+  .room-explainer {
+    font-size: 0.9rem;
+  }
+  .item-card {
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+  .link {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
 }

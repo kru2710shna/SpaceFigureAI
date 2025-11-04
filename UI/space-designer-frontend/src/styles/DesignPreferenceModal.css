@@ -1,83 +1,230 @@
+/* =====================================================
+   🎨 Responsive Design Modal (AI Assistant Prompt Modal)
+   ===================================================== */
+
 .design-modal {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   height: 100vh;
   width: 100vw;
   background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 2000;
+  animation: fadeIn 0.4s ease-out;
 }
 
+/* === Modal Card === */
 .design-card {
   background: rgba(255, 255, 255, 0.07);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 16px;
+  border-radius: 18px;
   padding: 2rem 3rem;
   width: 90%;
   max-width: 480px;
   color: white;
   text-align: center;
-  animation: fadeIn 0.5s ease-out;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+  animation: popUp 0.4s ease;
+  transition: all 0.3s ease;
+}
+
+.design-card:hover {
+  border-color: rgba(180, 160, 255, 0.3);
+  background: rgba(255, 255, 255, 0.09);
 }
 
 .design-card h3 {
   margin-bottom: 1.5rem;
-  color: #e0e0ff;
+  color: #e3d8ff;
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
+/* === Option Buttons === */
 .options {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 0.9rem;
+  margin-bottom: 1.5rem;
 }
 
 .options button {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 10px;
-  color: #dcdcdc;
-  padding: 0.8rem 1rem;
+  color: #e2e2e2;
+  padding: 0.9rem 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-size: 1rem;
+  font-weight: 500;
 }
 
 .options button:hover {
-  background: rgba(150, 120, 255, 0.2);
+  background: rgba(160, 130, 255, 0.25);
+  border-color: rgba(180, 150, 255, 0.3);
+  transform: translateY(-2px);
 }
 
 .options .selected {
   border: 1px solid #a88cff;
-  background: rgba(160, 130, 255, 0.25);
+  background: rgba(160, 130, 255, 0.3);
+  color: #ffffff;
+  font-weight: 600;
 }
 
+/* === Action Buttons (Continue / Skip) === */
 .actions {
   display: flex;
   justify-content: space-between;
   margin-top: 1.5rem;
+  gap: 0.6rem;
+  flex-wrap: wrap;
 }
 
 .actions button {
   flex: 1;
-  margin: 0 0.3rem;
-  padding: 0.7rem;
-  background: #9b8eff;
+  padding: 0.8rem 1rem;
+  background: linear-gradient(135deg, #a88cff, #7b5cff);
   color: white;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.actions button:hover {
+  background: linear-gradient(135deg, #bda1ff, #8c6cff);
+  transform: translateY(-2px);
 }
 
 .skip-btn {
   background: rgba(255, 255, 255, 0.1);
   color: #ccc;
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
+.skip-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+/* === Animations === */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes popUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =========================================
+   📱 Responsive Breakpoints
+   ========================================= */
+
+/* --- Tablet & Small Laptop --- */
+@media (max-width: 1024px) {
+  .design-card {
+    max-width: 420px;
+    padding: 2rem;
+  }
+  .design-card h3 {
+    font-size: 1.3rem;
+  }
+  .options button {
+    font-size: 0.95rem;
+    padding: 0.8rem;
+  }
+}
+
+/* --- Mobile Landscape / iPad Mini --- */
+@media (max-width: 768px) {
+  .design-card {
+    width: 92%;
+    padding: 1.6rem 1.8rem;
+  }
+  .design-card h3 {
+    font-size: 1.2rem;
+  }
+  .options button {
+    font-size: 0.9rem;
+    padding: 0.75rem;
+  }
+  .actions button {
+    font-size: 0.9rem;
+    padding: 0.7rem;
+  }
+}
+
+/* --- Mobile Portrait --- */
+@media (max-width: 480px) {
+  .design-modal {
+    align-items: flex-end;
+    background: rgba(0, 0, 0, 0.75);
+  }
+
+  .design-card {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 20px 20px 0 0;
+    padding: 1.2rem 1.4rem;
+    text-align: left;
+    animation: slideUp 0.4s ease-out;
+  }
+
+  .design-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+
+  .options {
+    gap: 0.7rem;
+  }
+
+  .options button {
+    font-size: 0.85rem;
+    padding: 0.7rem;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .actions button {
+    width: 100%;
+    font-size: 0.9rem;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
