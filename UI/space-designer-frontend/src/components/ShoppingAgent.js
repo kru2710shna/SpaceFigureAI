@@ -47,7 +47,7 @@ const ShoppingAgent = () => {
       <video className="background-video" src={bgVideo} autoPlay loop muted playsInline />
       <div className="overlay">
         <header className="title-section">
-          <h1>🛋️ Smart Design & Shopping Agent</h1>
+          <h1> Smart Design & Shopping Agent</h1>
           <p>AI-powered room-aware recommendations inspired by your architectural blueprint.</p>
         </header>
 
@@ -56,7 +56,7 @@ const ShoppingAgent = () => {
 
         {reasoning && (
           <section className="summary">
-            <h2>🧠 Design Summary</h2>
+            <h2> Design Summary</h2>
             <div className="summary-block">
               <h3>Caption</h3>
               <p>{reasoning.caption}</p>
@@ -79,7 +79,7 @@ const ShoppingAgent = () => {
 
         {data && (
           <section className="rooms">
-            <h2>🏠 Room-Based Recommendations</h2>
+            <h2> Room-Based Recommendations</h2>
 
             {Object.entries(data.rooms).map(([room, items]) => (
               <div className="room" key={room}>
@@ -120,7 +120,7 @@ const ShoppingAgent = () => {
               rel="noreferrer"
               className="link amazon"
             >
-              🛒 Amazon
+              Amazon
             </a>
             <a
               href="https://www.ikea.com/us/en/cat/furniture-fu001/"
@@ -128,7 +128,7 @@ const ShoppingAgent = () => {
               rel="noreferrer"
               className="link ikea"
             >
-              🏠 IKEA
+              IKEA
             </a>
           </div>
         </div>

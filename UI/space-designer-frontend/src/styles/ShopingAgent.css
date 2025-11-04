@@ -18,7 +18,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.15; /* more visible background */
   z-index: 0;
 }
 
@@ -26,7 +25,6 @@
   position: relative;
   z-index: 2;
   background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(6px);
   padding: 3rem 8%;
   text-align: center;
   animation: fadeIn 1.5s ease;

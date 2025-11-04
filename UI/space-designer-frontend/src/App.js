@@ -4,7 +4,7 @@ import UploadForm from "./components/UploadForm";
 import IntakeModal from "./components/IntakeModal";
 import TourGuideAgent from "./components/TourGuideAgent";
 import "./App.css";
-import bgVideo from "./assets/BG_Arch_2.mp4";
+import bgVideo from "./assets/BG_Arch_3.mp4";
 import DepthViewer from "./components/DepthViewer"; 
 import Blueprint3DViewer from "./components/Blueprint3DViewer";
 import ShoppingAgent from "./components/ShoppingAgent";

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "../styles/TourGuideAgent.css";
-import bgVideo from "../assets/BG_Arch.mp4";
+import bgVideo from "../assets/BG_Arch_4.mp4";
 import { useNavigate } from "react-router-dom";
 import MathematicalAgent from "./MathematicalAgent";
 
@@ -30,7 +30,7 @@ const TourGuideAgent = () => {
         throw new Error("Invalid backend response format");
 
       setResult(data.results);
-      setStatus("✅ Inspection Complete — Ready for Review");
+      setStatus(" Inspection Complete — Ready for Review");
     } catch (err) {
       console.error("❌ -7 Error:", err);
       setError(err.message || "Agent failure — try again.");
@@ -148,7 +148,7 @@ const TourGuideAgent = () => {
       </div>
       <div className="shopping-btn-container fade-in">
         <button className="render-btn" onClick={() => navigate("/shopping-agent")}>
-          🛍️ Go to Shopping Agent
+          Go to Shopping Agent
         </button>
       </div>
     </div>
