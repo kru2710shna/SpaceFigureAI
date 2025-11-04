@@ -1,143 +1,150 @@
-/* ==============================================
-   🛋️ Smart Design & Shopping Agent - Modern UI
-   ============================================== */
+/* ===============================
+   🛋️ Smart Design & Shopping Agent
+   =============================== */
 
-.shopping-agent-container {
+.shopping-page {
   position: relative;
   min-height: 100vh;
-  color: #fff;
   font-family: "Inter", sans-serif;
+  color: #fff;
   overflow-y: auto;
   scroll-behavior: smooth;
 }
 
-.bg-video {
+.background-video {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.25;
+  opacity: 0.15; /* more visible background */
   z-index: 0;
 }
 
-.content-overlay {
+.overlay {
   position: relative;
   z-index: 2;
-  padding: 4rem 8%;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(10px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  padding: 3rem 8%;
+  text-align: center;
+  animation: fadeIn 1.5s ease;
 }
 
-/* === Hero Section === */
-.hero-section {
-  text-align: center;
+/* === Title Section === */
+.title-section h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #c39eff, #8a5cff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.6rem;
+}
+
+.title-section p {
+  font-size: 1.15rem;
+  color: #d4d4d4;
   margin-bottom: 3rem;
 }
 
-.main-title {
-  font-size: 2.8rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #a87fff, #7b3ff7);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 0.8rem;
-}
-
-.hero-desc {
-  color: #d4d4d4;
-  max-width: 750px;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  margin: 0 auto;
-}
-
-/* === Summary Section === */
-.summary-section {
-  max-width: 850px;
+/* === Design Summary === */
+.summary {
   background: rgba(255, 255, 255, 0.08);
-  border-radius: 18px;
+  border-radius: 16px;
   padding: 2rem;
+  max-width: 850px;
+  margin: 0 auto 3.5rem auto;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
-  margin-bottom: 3.5rem;
   text-align: left;
-  animation: fadeIn 1s ease;
 }
 
-.summary-section h2 {
+.summary h2 {
   color: #cbb4ff;
-  margin-bottom: 0.5rem;
-}
-
-.divider {
-  height: 3px;
-  width: 70px;
-  background: linear-gradient(135deg, #9b5de5, #6a00f4);
-  border-radius: 3px;
+  text-align: center;
   margin-bottom: 1.5rem;
 }
 
-/* === Recommendation Section === */
-.recommendation-section {
-  width: 100%;
+.summary-block h3 {
+  color: #e4ccff;
+  margin-top: 1.2rem;
+  font-size: 1.2rem;
+}
+
+.summary-block p {
+  color: #d8d8d8;
+  line-height: 1.6;
+}
+
+.summary-block ol {
+  margin-top: 1rem;
+  padding-left: 1.5rem;
+  color: #d3c2ff;
+  line-height: 1.6;
+}
+
+/* === Rooms === */
+.rooms {
   max-width: 1100px;
-  text-align: center;
-  margin-bottom: 3rem;
+  margin: 0 auto 4rem auto;
 }
 
-.recommendation-section h2 {
-  font-size: 2.2rem;
-  font-weight: 700;
+.rooms h2 {
+  font-size: 2rem;
   color: #e2c4ff;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
-.room-block {
-  margin-bottom: 3rem;
+.room {
+  margin-bottom: 3.5rem;
   text-align: left;
 }
 
-.room-title {
+.room h3 {
+  background: linear-gradient(135deg, #8e2de2, #4a00e0);
   display: inline-block;
   padding: 10px 22px;
-  background: linear-gradient(135deg, #8e2de2, #4a00e0);
   border-radius: 12px;
   font-size: 1.3rem;
   font-weight: 600;
   color: #fff;
-  margin-bottom: 1.2rem;
+  margin-bottom: 0.5rem;
 }
 
-.room-grid {
+.room-explainer {
+  color: #ccc;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  max-width: 750px;
+}
+
+/* === Item Cards === */
+.item-grid {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 1.5rem;
+  gap: 1.4rem;
 }
 
-/* === Cards === */
-.card {
-  flex: 1 1 260px;
+.item-card {
+  flex: 1 1 250px;
   background: rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
+  border-radius: 14px;
   padding: 1.5rem;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-  transition: all 0.3s ease;
   text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
-.card:hover {
-  transform: translateY(-6px);
+.item-card:hover {
   background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-6px);
 }
 
-.card h4 {
+.item-card h4 {
   font-size: 1.15rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
+  color: #fff;
 }
 
 .category {
@@ -148,85 +155,87 @@
 .price {
   color: #d2a8ff;
   font-weight: 600;
-  margin-top: 0.4rem;
+  margin: 0.4rem 0;
 }
 
-.no-items {
-  color: #aaa;
-  font-style: italic;
+.reason {
+  color: #bfbfbf;
+  font-size: 0.9rem;
+  line-height: 1.4;
 }
 
-/* === External Links === */
+/* === Links === */
 .shopping-links {
-  text-align: center;
   margin-top: 2rem;
-  margin-bottom: 3rem;
+  text-align: center;
 }
 
 .shopping-links p {
   color: #d4d4d4;
-  font-size: 1rem;
   margin-bottom: 0.8rem;
 }
 
-.link-row {
+.buttons {
   display: flex;
   justify-content: center;
   gap: 1rem;
 }
 
-.external-link {
-  display: inline-block;
+.link {
   padding: 12px 20px;
   border-radius: 10px;
   font-weight: 600;
-  color: white;
   text-decoration: none;
+  color: white;
   transition: all 0.3s ease;
 }
 
-.external-link.amazon {
+.link.amazon {
   background: linear-gradient(135deg, #ff9900, #ff6600);
 }
 
-.external-link.ikea {
+.link.ikea {
   background: linear-gradient(135deg, #0051ba, #003580);
 }
 
-.external-link:hover {
+.link:hover {
   transform: scale(1.05);
   filter: brightness(1.2);
 }
 
 /* === Back Button === */
-.back-btn {
+.back-button {
+  margin-top: 3rem;
   background: linear-gradient(135deg, #a066ff, #6b00ff);
   border: none;
   color: #fff;
-  font-weight: 600;
-  padding: 14px 24px;
+  padding: 14px 28px;
   border-radius: 14px;
+  font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
   transition: transform 0.3s ease;
 }
-.back-btn:hover {
+.back-button:hover {
   transform: scale(1.08);
 }
 
-/* === States === */
-.status-msg,
-.error-msg {
-  text-align: center;
+/* === Status & Error === */
+.status {
+  color: #fff;
   margin: 1rem 0;
-  font-size: 1.1rem;
 }
-.error-msg {
+.error {
   color: #ff8585;
 }
 
 /* === Animations === */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

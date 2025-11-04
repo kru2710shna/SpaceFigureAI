@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../styles/ShoppingAgent.css";
+import "../styles/ShopingAgent.css";
 import bgVideo from "../assets/BG_ML.mp4";
 import { useNavigate } from "react-router-dom";
 
@@ -24,8 +24,7 @@ const ShoppingAgent = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            image_url:
-              "http://127.0.0.1:5050/agents/outputs/latest_detected_blueprint.jpg",
+            image_url: "http://127.0.0.1:5050/agents/outputs/latest_detected_blueprint.jpg",
             intake: { style: "Modern", budget: "$5k–$10k", lighting: "Natural" },
           }),
         });
@@ -44,46 +43,63 @@ const ShoppingAgent = () => {
   }, []);
 
   return (
-    <div className="shopping-agent-container">
-      <video className="bg-video" src={bgVideo} autoPlay loop muted playsInline />
-      <div className="content-overlay fade-in">
-        <header className="hero-section">
-          <h1 className="main-title">🛋️ Smart Design & Shopping Agent</h1>
-          <p className="hero-desc">
-            AI-powered room-aware recommendations inspired by your architectural blueprint.
-          </p>
+    <div className="shopping-page">
+      <video className="background-video" src={bgVideo} autoPlay loop muted playsInline />
+      <div className="overlay">
+        <header className="title-section">
+          <h1>🛋️ Smart Design & Shopping Agent</h1>
+          <p>AI-powered room-aware recommendations inspired by your architectural blueprint.</p>
         </header>
 
-        {loading && <p className="status-msg">Analyzing your space...</p>}
-        {error && <p className="error-msg">{error}</p>}
+        {loading && <p className="status">Analyzing your space...</p>}
+        {error && <p className="error">{error}</p>}
 
         {reasoning && (
-          <section className="summary-section">
+          <section className="summary">
             <h2>🧠 Design Summary</h2>
-            <div className="divider"></div>
-            <p><strong>Caption:</strong> {reasoning.caption}</p>
-            <p><strong>Reasoning:</strong> {reasoning.reasoning}</p>
-            <p><strong>Suggestions:</strong> {reasoning.suggestion}</p>
+            <div className="summary-block">
+              <h3>Caption</h3>
+              <p>{reasoning.caption}</p>
+
+              <h3>Reasoning</h3>
+              <p>{reasoning.reasoning}</p>
+
+              <h3>Top Suggestions</h3>
+              <ol>
+                {reasoning.suggestion
+                  .split(/[0-9]+\./)
+                  .filter((s) => s.trim())
+                  .map((tip, i) => (
+                    <li key={i}>{tip.trim()}</li>
+                  ))}
+              </ol>
+            </div>
           </section>
         )}
 
         {data && (
-          <section className="recommendation-section">
+          <section className="rooms">
             <h2>🏠 Room-Based Recommendations</h2>
-            <div className="divider"></div>
 
             {Object.entries(data.rooms).map(([room, items]) => (
-              <div className="room-block" key={room}>
-                <h3 className="room-title">
-                  <span>{room.charAt(0).toUpperCase() + room.slice(1)}</span>
-                </h3>
-                <div className="room-grid">
+              <div className="room" key={room}>
+                <h3>{room.charAt(0).toUpperCase() + room.slice(1)}</h3>
+                <p className="room-explainer">
+                  These items were chosen to complement your {room.toLowerCase()} layout,
+                  enhancing balance, comfort, and style within your design theme.
+                </p>
+
+                <div className="item-grid">
                   {items.length > 0 ? (
                     items.map((item, i) => (
-                      <div className="card" key={i}>
+                      <div className="item-card" key={i}>
                         <h4>{item.name}</h4>
                         <p className="category">{item.category}</p>
                         <p className="price">${item.price}</p>
+                        <p className="reason">
+                          This piece fits your {room.toLowerCase()}’s style — blending with
+                          the natural light and budget constraints of your design.
+                        </p>
                       </div>
                     ))
                   ) : (
@@ -96,13 +112,13 @@ const ShoppingAgent = () => {
         )}
 
         <div className="shopping-links">
-          <p>Explore similar items on:</p>
-          <div className="link-row">
+          <p>Explore similar products on:</p>
+          <div className="buttons">
             <a
-              href="https://www.amazon.com/s?k=furniture+modern+home+decor"
+              href="https://www.amazon.com/s?k=modern+home+furniture"
               target="_blank"
               rel="noreferrer"
-              className="external-link amazon"
+              className="link amazon"
             >
               🛒 Amazon
             </a>
@@ -110,14 +126,14 @@ const ShoppingAgent = () => {
               href="https://www.ikea.com/us/en/cat/furniture-fu001/"
               target="_blank"
               rel="noreferrer"
-              className="external-link ikea"
+              className="link ikea"
             >
               🏠 IKEA
             </a>
           </div>
         </div>
 
-        <button className="back-btn" onClick={() => navigate("/tour-guide")}>
+        <button className="back-button" onClick={() => navigate("/tour-guide")}>
           ← Back to Design Overview
         </button>
       </div>
