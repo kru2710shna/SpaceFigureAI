@@ -27,8 +27,12 @@ const PORT = process.env.PORT || 5050;
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:5173"],
-    methods: ["GET", "POST"],
+    origin: [
+      "http://localhost:3000",     // local React
+      "http://localhost:5173",     // local Vite
+      "https://spacefigureai-1.onrender.com", // ✅ your Render frontend
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
 );
