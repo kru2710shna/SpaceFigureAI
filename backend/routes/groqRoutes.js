@@ -1,7 +1,12 @@
+// ====================================================
+// 🧠 Groq Routes — Hybrid Visual + Semantic AI Reasoning
+// ====================================================
 import express from "express";
 import dotenv from "dotenv";
-dotenv.config();
+import path from "path";
+import { fileURLToPath } from "url";
 
+dotenv.config();
 const router = express.Router();
 
 // ====================================================
@@ -15,12 +20,10 @@ const MODELS = {
 };
 
 // ====================================================
-// ✅ Generic helper for Groq API
+// 🧩 Helper: Call Groq API
 // ====================================================
 async function callGroq(messages, modelKey = "analyze", temperature = 0.4, max_tokens = 800) {
   const model = MODELS[modelKey] || MODELS.analyze;
-
-  const body = { model, messages, temperature, max_tokens };
 
   const res = await fetch(GROQ_API_URL, {
     method: "POST",
@@ -28,7 +31,7 @@ async function callGroq(messages, modelKey = "analyze", temperature = 0.4, max_t
       "Content-Type": "application/json",
       Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify({ model, messages, temperature, max_tokens }),
   });
 
   if (!res.ok) {
@@ -40,14 +43,14 @@ async function callGroq(messages, modelKey = "analyze", temperature = 0.4, max_t
 }
 
 // ====================================================
-// 🔹 /groq/confirm → Hybrid visual + semantic validation
+// 🔹 POST /groq/confirm → Hybrid visual + semantic validation
 // ====================================================
 router.post("/confirm", async (req, res) => {
   try {
     const { image_url } = req.body;
     if (!image_url) return res.status(400).json({ error: "Missing image_url" });
 
-    // 1️⃣ Local lightweight visual validator
+    // 1️⃣ Local visual validator
     let visualConfidence = false;
     let visualReason = "Local validator unavailable.";
 
@@ -60,16 +63,19 @@ router.post("/confirm", async (req, res) => {
       const visualResult = await visual.json();
       visualConfidence = visualResult?.is_blueprint || false;
       visualReason = visualResult?.reason || "No reason provided.";
-      console.log(`🧠 Local visual check → ${visualConfidence ? "✅ Blueprint" : "⚠️ Possibly Non-Blueprint"} (${visualReason})`);
+      console.log(
+        `🧠 Local visual check → ${visualConfidence ? "✅ Blueprint" : "⚠️ Possibly Non-Blueprint"} (${visualReason})`
+      );
     } catch (e) {
       console.warn("⚠️ Local validator not running, skipping visual check.");
     }
 
-    // 2️⃣ Semantic Groq confirmation — always runs
+    // 2️⃣ Semantic confirmation with Groq
     const messages = [
       {
         role: "system",
-        content: "You are an expert architectural AI. Determine if an image represents a valid blueprint, floor plan, or layout diagram suitable for spatial reasoning.",
+        content:
+          "You are an expert architectural AI. Determine if an image represents a valid blueprint, floor plan, or layout diagram suitable for spatial reasoning.",
       },
       {
         role: "user",
@@ -94,7 +100,6 @@ Respond strictly in JSON:
       parsed = { is_blueprint: true, reason: "Fallback: visually confirmed layout." };
     }
 
-    // ✅ Merge local and semantic results
     const confirmed = parsed.is_blueprint || visualConfidence;
     const reason = parsed.reason || visualReason;
 
@@ -106,11 +111,11 @@ Respond strictly in JSON:
 });
 
 // ====================================================
-// 🔹 /groq/questions → Sequential design Q&A
+// 🔹 POST /groq/questions → Sequential design Q&A
 // ====================================================
 router.post("/questions", async (req, res) => {
   try {
-    const { step, prevAnswers } = req.body;
+    const { step = 0, prevAnswers = {} } = req.body;
 
     const questions = [
       "What interior style do you prefer? (Modern, Classic, Gen-Z, Minimal, Rustic)",
@@ -129,7 +134,7 @@ router.post("/questions", async (req, res) => {
       },
       {
         role: "user",
-        content: `Previous answers: ${JSON.stringify(prevAnswers || {})}
+        content: `Previous answers: ${JSON.stringify(prevAnswers)}
 Now ask the next question only: ${questions[step]}`,
       },
     ];
@@ -145,7 +150,7 @@ Now ask the next question only: ${questions[step]}`,
 });
 
 // ====================================================
-// 🔹 /groq/analyze → Caption, Reasoning, Suggestions
+// 🔹 POST /groq/analyze → Caption, Reasoning, Suggestions
 // ====================================================
 router.post("/analyze", async (req, res) => {
   try {
@@ -155,8 +160,7 @@ router.post("/analyze", async (req, res) => {
     const messages = [
       {
         role: "system",
-        content: `You are a senior interior designer AI.
-Return only valid JSON with fields: caption, reasoning, suggestion.`,
+        content: `You are a senior interior designer AI. Return only valid JSON with fields: caption, reasoning, suggestion.`,
       },
       {
         role: "user",
@@ -187,7 +191,7 @@ Output example:
       };
     }
 
-    // 💡 Auto-generate suggestions if missing
+    // Auto-generate suggestions if missing
     if (!parsed.suggestion || parsed.suggestion.length < 10) {
       try {
         const suggestionPrompt = [
@@ -217,18 +221,59 @@ Output example:
 });
 
 // ====================================================
-// 🔹 /groq/status → Health check
+// 🔹 POST /groq/run → Math + Depth + Detection Reasoning
 // ====================================================
-router.get("/status", async (_, res) => {
+router.post("/run", async (req, res) => {
   try {
-    res.json({
-      groq: process.env.GROQ_API_KEY
-        ? "✅ Groq API Key Loaded"
-        : "⚠️ Missing GROQ_API_KEY",
+    const { upload_id, objects = [], scale_ratio_m = 1, depth_hint = [] } = req.body;
+
+    console.log("🚀 Groq reasoning triggered");
+    console.log("📦 Payload:", {
+      upload_id,
+      objects_count: objects.length,
+      has_depth_hint: Array.isArray(depth_hint) && depth_hint.length > 0,
     });
-  } catch {
-    res.status(500).json({ error: "Groq status check failed." });
+
+    // 🔮 Placeholder reasoning logic
+    const result = [
+      {
+        label: "Wall",
+        position: { x: 0, y: 0, z: 0 },
+        size: { width: 8 * scale_ratio_m, height: 3 * scale_ratio_m, depth: 0.2 },
+      },
+      {
+        label: "Door",
+        position: { x: 2 * scale_ratio_m, y: 0, z: 1 },
+        size: { width: 1 * scale_ratio_m, height: 2 * scale_ratio_m, depth: 0.1 },
+      },
+      {
+        label: "Window",
+        position: { x: -3 * scale_ratio_m, y: 0, z: 1.5 },
+        size: { width: 2 * scale_ratio_m, height: 1 * scale_ratio_m, depth: 0.05 },
+      },
+    ];
+
+    res.json({
+      message: "✅ Groq reasoning successful",
+      upload_id,
+      result,
+    });
+
+    console.log(`✅ Groq reasoning complete for upload_id=${upload_id}`);
+  } catch (err) {
+    console.error("❌ Groq reasoning error:", err);
+    res.status(500).json({ error: err.message });
   }
+});
+
+// ====================================================
+// 🔹 GET /groq/status → Health check
+// ====================================================
+router.get("/status", (req, res) => {
+  res.json({
+    status: "🟢 Groq reasoning route active",
+    apiKeyLoaded: !!process.env.GROQ_API_KEY,
+  });
 });
 
 export default router;
