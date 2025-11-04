@@ -3,6 +3,9 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import "../styles/DepthViewer.css";
 import { useNavigate } from "react-router-dom";
+import BASE_URL from "../config";
+
+
 
 export default function DepthViewer() {
   const mountRef = useRef(null);
@@ -27,7 +30,7 @@ export default function DepthViewer() {
         console.log("🧩 Initializing DepthViewer pipeline...");
 
         // 1️⃣ Fetch latest detection files
-        const resp = await fetch("http://localhost:5050/test-outputs");
+        const resp = await fetch(`${BASE_URL}/test-outputs`);
         const uploadList = await resp.json();
 
         if (!uploadList.files?.length)
@@ -59,11 +62,12 @@ export default function DepthViewer() {
         setUploadId(id);
 
         // 2️⃣ Generate depth map
-        const depthRes = await fetch("http://localhost:5050/depth/run", {
+        const depthRes = await fetch(`${BASE_URL}/depth/run`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ image: latestImg }),
         });
+
 
         if (!depthRes.ok)
           throw new Error(`Depth API failed with ${depthRes.status}`);
@@ -79,7 +83,8 @@ export default function DepthViewer() {
         setDepthUrl(depth.depth_url);
 
         // 3️⃣ Math computation
-        const mathRes = await fetch("http://localhost:5050/math/run");
+        const mathRes = await fetch(`${BASE_URL}/math/run`);
+
         if (!mathRes.ok)
           throw new Error(`Math route failed with ${mathRes.status}`);
 
