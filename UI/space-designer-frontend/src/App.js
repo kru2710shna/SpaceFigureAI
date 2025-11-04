@@ -7,6 +7,7 @@ import "./App.css";
 import bgVideo from "./assets/BG_Arch_2.mp4";
 import DepthViewer from "./components/DepthViewer"; 
 import Blueprint3DViewer from "./components/Blueprint3DViewer";
+import ShoppingAgent from "./components/ShoppingAgent";
 
 
 
@@ -103,6 +104,8 @@ function App() {
         <Route path="/depth-viewer" element={<DepthViewer />} />
 
         <Route path="/blueprint-3d" element={<Blueprint3DViewer />} />
+
+        <Route path="/shopping-agent" element={<ShoppingAgent />} />
         
       </Routes>
     </div>

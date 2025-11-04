@@ -1,15 +1,6 @@
 {
-  "sessionId": "session_1730630400000",
-  "timestamp": "2025-11-03T08:40:00.000Z",
-  "completed": true,
-  "answers": {
-    "step0": "Modern",
-    "step1": "$10k-$20k",
-    "step2": "Living room, bright lighting",
-    "item_type": [
-      "sofa",
-      "coffee table",
-      "floor lamp"
-    ]
-  }
+  "style": "Classic",
+  "budget": "5k",
+  "lighting": "bedroom",
+  "timestamp": "2025-11-04T02:04:40.257Z"
 }

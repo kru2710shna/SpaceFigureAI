@@ -103,7 +103,8 @@ function IntakeModal({ imageSrc, uploadId }) {
         if (data.sessionId && !sessionId) setSessionId(data.sessionId);
 
         if (data.done) {
-          console.log("All answers collected, proceeding to analysis.");
+          console.log("All answers collected, saving preferences...");
+          await saveUserAnswers(currentAnswers); // ✅ Save to backend
           setShowQuestion(false);
           analyzeDesign(currentAnswers);
         } else {
@@ -141,7 +142,31 @@ function IntakeModal({ imageSrc, uploadId }) {
   };
 
   // -------------------------------------------------------
-  // 5. Final Design Analysis Request
+  // 5. Save Answers to Backend (POST /groq/save-answers)
+  // -------------------------------------------------------
+  const saveUserAnswers = async (finalAnswers) => {
+    try {
+      const payload = {
+        style: finalAnswers.step0 || "Modern",
+        budget: finalAnswers.step1 || "$5k–$10k",
+        lighting: finalAnswers.step2 || "Natural",
+      };
+
+      console.log("💾 Saving user answers:", payload);
+      const response = await safeFetch("http://127.0.0.1:5050/groq/save-answers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      console.log("✅ Preferences saved:", response);
+    } catch (err) {
+      console.error("❌ Error saving user answers:", err);
+    }
+  };
+
+  // -------------------------------------------------------
+  // 6. Final Design Analysis Request
   // -------------------------------------------------------
   const analyzeDesign = async (finalAnswers) => {
     try {
@@ -168,7 +193,7 @@ function IntakeModal({ imageSrc, uploadId }) {
   };
 
   // -------------------------------------------------------
-  // 6. UI Rendering
+  // 7. UI Rendering
   // -------------------------------------------------------
   return (
     <div className="intake-modal-wrapper">

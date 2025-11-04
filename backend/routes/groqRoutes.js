@@ -5,6 +5,10 @@ import express from "express";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
+import csv from "csv-parser";
+import Groq from "groq-sdk";
+
 
 dotenv.config();
 const router = express.Router();
@@ -124,6 +128,33 @@ router.post("/questions", async (req, res) => {
     ];
 
     if (step >= questions.length) {
+      // ✅ Save all answers locally for later reasoning (e.g. ShoppingAgent)
+      try {
+        const answerPath = path.join(process.cwd(), "answers/answer.json");
+        const answers = [
+          prevAnswers[0] || "Modern",
+          prevAnswers[1] || "$5k–$10k",
+          prevAnswers[2] || "Natural",
+        ];
+
+        fs.writeFileSync(
+          answerPath,
+          JSON.stringify(
+            {
+              style: answers[0],
+              budget: answers[1],
+              lighting: answers[2],
+              timestamp: new Date().toISOString(),
+            },
+            null,
+            2
+          )
+        );
+        console.log(`💾 Preferences saved to ${answerPath}`);
+      } catch (err) {
+        console.error("❌ Failed to save answers:", err.message);
+      }
+
       return res.json({ done: true, message: "All questions completed." });
     }
 
@@ -274,6 +305,78 @@ router.get("/status", (req, res) => {
     status: "🟢 Groq reasoning route active",
     apiKeyLoaded: !!process.env.GROQ_API_KEY,
   });
+});
+
+
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+// Load furniture CSV into memory
+const furnitureData = [];
+const csvPath = path.join(process.cwd(), "../data/furniture_dataset.csv");
+
+fs.createReadStream(csvPath)
+  .pipe(csv())
+  .on("data", (row) => furnitureData.push(row))
+  .on("end", () => console.log("✅ Furniture dataset loaded"));
+
+// 🧠 Shopping reasoning route
+router.get("/shopping", async (req, res) => {
+  try {
+    // Load user preferences
+    const answerPath = path.join(process.cwd(), "answers/answer.json");
+    const userAnswers = JSON.parse(fs.readFileSync(answerPath, "utf-8"));
+
+    const prompt = `
+You are an interior shopping assistant. Based on the user preferences:
+Style: ${userAnswers.style}
+Budget: ${userAnswers.budget}
+Lighting preference: ${userAnswers.lighting}
+and using the provided furniture dataset (with fields like name, category, price, style, color, size),
+recommend 6-8 furniture items that fit the user's space aesthetics and price range.
+Respond in JSON array format:
+[{ "name": "...", "category": "...", "price": "...", "image_url": "...", "store_url": "..." }]
+    `;
+
+    const completion = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile", // Updated Groq model
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.4,
+      max_tokens: 1024,
+    });
+
+    const response = completion.choices[0].message.content;
+    res.json({ items: JSON.parse(response) });
+  } catch (err) {
+    console.error("❌ Groq Shopping Agent Error:", err.message);
+    res.status(500).json({ error: "Shopping Agent failed to reason." });
+  }
+});
+
+
+router.post("/save-answers", async (req, res) => {
+  try {
+    const { style, budget, lighting } = req.body;
+    if (!style || !budget || !lighting) {
+      return res.status(400).json({ error: "Missing one or more required fields." });
+    }
+
+    const answerPath = path.join(process.cwd(), "answers/answer.json");
+
+    const data = {
+      style,
+      budget,
+      lighting,
+      timestamp: new Date().toISOString(),
+    };
+
+    fs.writeFileSync(answerPath, JSON.stringify(data, null, 2));
+    console.log(`💾 Preferences saved successfully → ${answerPath}`);
+
+    res.json({ message: "✅ Preferences saved successfully.", data });
+  } catch (err) {
+    console.error("❌ Error saving answers:", err.message);
+    res.status(500).json({ error: "Failed to save user answers." });
+  }
 });
 
 export default router;
