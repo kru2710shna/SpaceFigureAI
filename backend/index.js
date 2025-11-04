@@ -97,7 +97,8 @@ app.post("/upload", upload.array("files"), (req, res) => {
     return {
       uploadId,
       filename: f.filename,
-      input_url: `/uploads/${f.filename}`,
+      input_url: `https://spacefigureai.onrender.com/uploads/${f.filename}`,
+
       workspace: ws,
     };
   });
